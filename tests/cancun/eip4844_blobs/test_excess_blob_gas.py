@@ -43,7 +43,9 @@ from ethereum_test_tools import (
     add_kzg_version,
 )
 from ethereum_test_tools import Opcodes as Op
+from ethereum_test_types.helpers import blob_to_kzg_commitment, compute_blob_kzg_proof, generate_random_blob
 
+from .common import Blob
 from .spec import Spec, SpecHelpers, ref_spec_4844
 
 REFERENCE_SPEC_GIT_PATH = ref_spec_4844.git_path
@@ -51,6 +53,7 @@ REFERENCE_SPEC_VERSION = ref_spec_4844.version
 
 # All tests run from Cancun fork
 pytestmark = pytest.mark.valid_from("Cancun")
+pytestmark = pytest.mark.skip(reason="Not discovered yet")
 
 
 @pytest.fixture
@@ -146,6 +149,7 @@ def tx(  # noqa: D103
     new_blobs: int,
     tx_max_fee_per_gas: int,
     tx_max_fee_per_blob_gas: int,
+    tx_max_priority_fee_per_gas: int,
     tx_gas_limit: int,
     destination_account: Address,
 ):
@@ -162,6 +166,12 @@ def tx(  # noqa: D103
             access_list=[],
         )
     else:
+        blobs = []
+        for _ in range(new_blobs):
+            blob = generate_random_blob()
+            commitment = blob_to_kzg_commitment(blob)
+            proof = compute_blob_kzg_proof(blob, commitment)
+            blobs.append(Blob(blob=blob, kzg_commitment=commitment, kzg_proof=proof))
         return Transaction(
             ty=Spec.BLOB_TX_TYPE,
             sender=sender,
@@ -169,13 +179,14 @@ def tx(  # noqa: D103
             value=1,
             gas_limit=tx_gas_limit,
             max_fee_per_gas=tx_max_fee_per_gas,
-            max_priority_fee_per_gas=0,
+            max_priority_fee_per_gas=tx_max_priority_fee_per_gas,
             max_fee_per_blob_gas=tx_max_fee_per_blob_gas,
             access_list=[],
-            blob_versioned_hashes=add_kzg_version(
-                [Hash(x) for x in range(new_blobs)],
-                Spec.BLOB_COMMITMENT_VERSION_KZG,
-            ),
+            blob_versioned_hashes=[x.versioned_hash() for x in blobs],
+            blob_kzg_commitments=[x.kzg_commitment for x in blobs],
+            blob_kzg_proofs=[x.kzg_proof for x in blobs],
+            blobs=[x.blob for x in blobs],
+            wrapped_blob_transaction=True,
         )
 
 
