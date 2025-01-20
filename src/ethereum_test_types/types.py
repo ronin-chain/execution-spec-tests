@@ -1004,6 +1004,13 @@ class Transaction(TransactionGeneric[HexNumber], TransactionTransitionToolConver
         return signing_envelope + [Uint(self.v), Uint(self.r), Uint(self.s)]
 
     @cached_property
+    def payload_body_without_blob(self) -> List[Any]:
+        """Returns the list of values included in the transaction body, ignoring blob fields."""
+        if self.ty == 3 and self.wrapped_blob_transaction:
+            return self.signing_envelope + [Uint(self.v), Uint(self.r), Uint(self.s)]
+        return self.payload_body
+
+    @cached_property
     def rlp(self) -> Bytes:
         """
         Returns bytes of the serialized representation of the transaction,
@@ -1019,6 +1026,8 @@ class Transaction(TransactionGeneric[HexNumber], TransactionTransitionToolConver
     @cached_property
     def hash(self) -> Hash:
         """Returns hash of the transaction."""
+        if self.ty == 3 and self.wrapped_blob_transaction:
+            return Bytes(bytes([self.ty]) + eth_rlp.encode(self.payload_body_without_blob)).keccak256()
         return self.rlp.keccak256()
 
     @cached_property
