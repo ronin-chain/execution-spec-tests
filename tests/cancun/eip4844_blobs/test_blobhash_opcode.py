@@ -174,7 +174,7 @@ def test_blobhash_scenarios(
     blobhash_calls = BlobhashScenario.generate_blobhash_bytecode(
         scenario_name=scenario, max_blobs_per_block=max_blobs_per_block
     )
-    sender = pre.fund_eoa(10**23)
+    sender = pre.fund_eoa()
     blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx_fork_max
 
     blocks: List[Block] = []
@@ -241,7 +241,7 @@ def test_blobhash_invalid_blob_index(
     blobhash_calls = BlobhashScenario.generate_blobhash_bytecode(
         scenario_name=scenario, max_blobs_per_block=max_blobs_per_block
     )
-    sender = pre.fund_eoa(10**23)
+    sender = pre.fund_eoa()
     blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx_fork_max
     blocks: List[Block] = []
     post = {}
