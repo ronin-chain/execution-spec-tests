@@ -203,6 +203,7 @@ class Alloc(BaseAlloc):
             gas_limit=deploy_gas_limit,
         ).with_signature_and_sender()
         self._eth_rpc.send_transaction(deploy_tx)
+        self._eth_rpc.wait_for_transaction(deploy_tx)
         self._txs.append(deploy_tx)
 
         contract_address = deploy_tx.created_contract

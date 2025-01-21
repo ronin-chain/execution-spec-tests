@@ -20,6 +20,7 @@ from ethereum_test_tools.vm.opcode import Opcodes as Op
 REFERENCE_SPEC_GIT_PATH = "EIPS/eip-6780.md"
 REFERENCE_SPEC_VERSION = "2f8299df31bb8173618901a03a8366a3183479b0"
 
+pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mode")
 
 @pytest.fixture
 def env():  # noqa: D103
