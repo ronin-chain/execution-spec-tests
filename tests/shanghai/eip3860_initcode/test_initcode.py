@@ -149,7 +149,6 @@ def test_contract_creating_tx(
         to=None,
         data=initcode,
         gas_limit=10000000,
-        gas_price=10,
         sender=sender,
     )
 
@@ -289,7 +288,6 @@ class TestContractCreationGasUsage:
             access_list=tx_access_list,
             data=initcode,
             gas_limit=gas_limit,
-            gas_price=10,
             error=tx_error,
             sender=sender,
             # The entire gas limit is expected to be consumed.
@@ -444,7 +442,6 @@ class TestCreateInitcode:
             to=caller_contract_address,
             data=initcode,
             gas_limit=10000000,
-            gas_price=10,
             sender=sender,
         )
 
