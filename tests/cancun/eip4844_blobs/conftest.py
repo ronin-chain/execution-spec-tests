@@ -4,14 +4,16 @@ import pytest
 
 from ethereum_test_forks import Fork
 from ethereum_test_tools import Alloc, Block, Environment, Hash, Transaction, add_kzg_version
+from ethereum_test_types.helpers import blob_to_kzg_commitment, compute_blob_kzg_proof, generate_random_blob
 
+from .common import Blob
 from .spec import Spec
 
 
 @pytest.fixture
 def block_base_fee_per_gas() -> int:
     """Return default max fee per gas for transactions sent during test."""
-    return 7
+    return 21_000_000_000
 
 
 @pytest.fixture
@@ -198,7 +200,7 @@ def tx_max_priority_fee_per_gas() -> int:
     Can be overloaded by a test case to provide a custom max priority fee per
     gas.
     """
-    return 0
+    return 20_000_000_000
 
 
 @pytest.fixture
@@ -269,6 +271,13 @@ def non_zero_blob_gas_used_genesis_block(
     """
     if parent_blobs == 0:
         return None
+    
+    blobs = []
+    for _ in range(parent_blobs):
+        blob = generate_random_blob()
+        commitment = blob_to_kzg_commitment(blob)
+        proof = compute_blob_kzg_proof(blob, commitment)
+        blobs.append(Blob(blob=blob, kzg_commitment=commitment, kzg_proof=proof))
 
     excess_blob_gas_calculator = fork.excess_blob_gas_calculator(block_number=1)
     assert parent_excess_blob_gas == excess_blob_gas_calculator(
@@ -292,15 +301,16 @@ def non_zero_blob_gas_used_genesis_block(
                 value=1,
                 gas_limit=21_000,
                 max_fee_per_gas=tx_max_fee_per_gas,
-                max_priority_fee_per_gas=0,
+                max_priority_fee_per_gas=20_000_000_000,
                 max_fee_per_blob_gas=blob_gas_price_calculator(
                     excess_blob_gas=parent_excess_blob_gas
                 ),
                 access_list=[],
-                blob_versioned_hashes=add_kzg_version(
-                    [Hash(x) for x in range(parent_blobs)],
-                    Spec.BLOB_COMMITMENT_VERSION_KZG,
-                ),
+                blob_kzg_commitments=[x.kzg_commitment for x in blobs],
+                blob_kzg_proofs=[x.kzg_proof for x in blobs],
+                blobs=[x.blob for x in blobs],
+                blob_versioned_hashes=[x.versioned_hash() for x in blobs],
+                wrapped_blob_transaction=True,
             )
         ]
     )

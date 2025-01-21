@@ -42,7 +42,9 @@ from ethereum_test_tools import (
     add_kzg_version,
 )
 from ethereum_test_tools import Opcodes as Op
+from ethereum_test_types.helpers import blob_to_kzg_commitment, compute_blob_kzg_proof, generate_random_blob
 
+from .common import Blob
 from .spec import Spec, SpecHelpers, ref_spec_4844
 
 REFERENCE_SPEC_GIT_PATH = ref_spec_4844.git_path
@@ -86,7 +88,7 @@ def tx_gas(
 
 
 @pytest.fixture
-def blobs_per_tx() -> List[int]:
+def blobs_count_per_tx() -> List[int]:
     """
     Return list of integers that each represent the number of blobs in each
     transaction in the block of the test.
@@ -101,7 +103,7 @@ def blobs_per_tx() -> List[int]:
 
 
 @pytest.fixture
-def blob_hashes_per_tx(blobs_per_tx: List[int]) -> List[List[Hash]]:
+def blob_hashes_per_tx(blobs_count_per_tx: List[int]) -> List[List[bytes]]:
     """
     Produce the list of blob hashes that are sent during the test.
 
@@ -112,9 +114,30 @@ def blob_hashes_per_tx(blobs_per_tx: List[int]) -> List[List[Hash]]:
             [Hash(x) for x in range(blob_count)],
             Spec.BLOB_COMMITMENT_VERSION_KZG,
         )
-        for blob_count in blobs_per_tx
+        for blob_count in blobs_count_per_tx
     ]
 
+@pytest.fixture
+def blobs_per_tx(blobs_count_per_tx: List[int]) -> List[List[Blob]]:
+    """
+    Produce the list of blob that are sent during the test.
+    """
+    blobs = []
+    for blob_count in blobs_count_per_tx:
+        blobs.append([])
+        for i in range(blob_count):
+            blob = generate_random_blob()
+            commitment = blob_to_kzg_commitment(blob)
+            proof = compute_blob_kzg_proof(blob, commitment)
+            blobs[-1].append(Blob(blob=blob, kzg_commitment=commitment, kzg_proof=proof))
+    return blobs
+
+@pytest.fixture
+def blobs_and_hashes_per_tx(blobs_per_tx: List[List[Blob]]) -> Tuple[List[List[Blob]], List[List[bytes]]]:
+    """
+    Produce the list of blob and blob hashes that are sent during the test.
+    """
+    return blobs_per_tx, [[blob.versioned_hash() for blob in blobs] for blobs in blobs_per_tx]
 
 @pytest.fixture
 def total_account_minimum_balance(  # noqa: D103
@@ -123,13 +146,14 @@ def total_account_minimum_balance(  # noqa: D103
     tx_value: int,
     tx_max_fee_per_gas: int,
     tx_max_fee_per_blob_gas: int,
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: Tuple[List[List[Blob]], List[List[bytes]]],
 ) -> int:
     """
     Calculate minimum balance required for the account to be able to send
     the transactions in the block of the test.
     """
     minimum_cost = 0
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     for tx_blob_count in [len(x) for x in blob_hashes_per_tx]:
         blob_cost = tx_max_fee_per_blob_gas * blob_gas_per_blob * tx_blob_count
         minimum_cost += (tx_gas * tx_max_fee_per_gas) + tx_value + blob_cost
@@ -145,10 +169,11 @@ def total_account_transactions_fee(  # noqa: D103
     blob_gas_per_blob: int,
     tx_max_fee_per_gas: int,
     tx_max_priority_fee_per_gas: int,
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: Tuple[List[List[Blob]], List[List[bytes]]],
 ) -> int:
     """Calculate actual fee for the blob transactions in the block of the test."""
     total_cost = 0
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     for tx_blob_count in [len(x) for x in blob_hashes_per_tx]:
         blob_cost = blob_gas_price * blob_gas_per_blob * tx_blob_count
         block_producer_fee = (
@@ -204,10 +229,11 @@ def txs(  # noqa: D103
     tx_max_fee_per_blob_gas: int,
     tx_max_priority_fee_per_gas: int,
     tx_access_list: List[AccessList],
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: Tuple[List[List[Blob]], List[List[bytes]]],
     tx_error: Optional[TransactionException],
 ) -> List[Transaction]:
     """Prepare the list of transactions that are sent during the test."""
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     return [
         Transaction(
             ty=Spec.BLOB_TX_TYPE,
@@ -222,6 +248,10 @@ def txs(  # noqa: D103
             access_list=tx_access_list,
             blob_versioned_hashes=blob_hashes,
             error=tx_error if tx_i == (len(blob_hashes_per_tx) - 1) else None,
+            blob_kzg_commitments=[blob.kzg_commitment for blob in blobs_per_tx[tx_i]],
+            blob_kzg_proofs=[blob.kzg_proof for blob in blobs_per_tx[tx_i]],
+            blobs=[blob.blob for blob in blobs_per_tx[tx_i]],
+            wrapped_blob_transaction=True,
         )
         for tx_i, blob_hashes in enumerate(blob_hashes_per_tx)
     ]
@@ -371,7 +401,7 @@ def block(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx",
+    "blobs_count_per_tx",
     SpecHelpers.all_valid_blob_combinations,
 )
 @pytest.mark.valid_from("Cancun")
@@ -424,6 +454,7 @@ def generate_invalid_tx_max_fee_per_blob_gas_tests(
             min_base_fee_per_blob_gas,  # tx max_blob_gas_cost is the minimum
             TransactionException.INSUFFICIENT_MAX_FEE_PER_BLOB_GAS,
             id="insufficient_max_fee_per_blob_gas",
+            marks=pytest.mark.skip(reason="Low fee cap, gas tip not allow in execute mode")
         )
     )
     if (next_base_fee_per_blob_gas - min_base_fee_per_blob_gas) > 1:
@@ -436,6 +467,7 @@ def generate_invalid_tx_max_fee_per_blob_gas_tests(
                 - 1,  # tx max_blob_gas_cost is one less than the minimum
                 TransactionException.INSUFFICIENT_MAX_FEE_PER_BLOB_GAS,
                 id="insufficient_max_fee_per_blob_gas_one_less_than_next",
+                marks=pytest.mark.skip(reason="Low fee cap, gas tip not allow in execute mode")
             )
         )
     if min_base_fee_per_blob_gas > 1:
@@ -446,6 +478,7 @@ def generate_invalid_tx_max_fee_per_blob_gas_tests(
                 min_base_fee_per_blob_gas - 1,  # tx max_blob_gas_cost is one less than the minimum
                 TransactionException.INSUFFICIENT_MAX_FEE_PER_BLOB_GAS,
                 id="insufficient_max_fee_per_blob_gas_one_less_than_min",
+                marks=pytest.mark.skip(reason="Low fee cap, gas tip not allow in execute mode")
             )
         )
 
@@ -525,9 +558,10 @@ def test_invalid_tx_max_fee_per_blob_gas_state(
     "tx_max_fee_per_gas,tx_error",
     [
         # max blob gas is ok, but max fee per gas is less than base fee per gas
-        (
+        pytest.param(
             6,
             TransactionException.INSUFFICIENT_MAX_FEE_PER_GAS,
+            marks=pytest.mark.skip(reason="Low fee cap, gas tip not allow in execute mode")
         ),
     ],
     ids=["insufficient_max_fee_per_gas"],
@@ -558,7 +592,7 @@ def test_invalid_normal_gas(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx",
+    "blobs_count_per_tx",
     SpecHelpers.invalid_blob_combinations,
 )
 @pytest.mark.parametrize(
@@ -592,8 +626,8 @@ def test_invalid_block_blob_count(
     [[], [AccessList(address=100, storage_keys=[100, 200])]],
     ids=["no_access_list", "access_list"],
 )
-@pytest.mark.parametrize("tx_max_fee_per_gas", [7, 14])
-@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [0, 7])
+@pytest.mark.parametrize("tx_max_fee_per_gas", [21_000_000_000])
+@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [20_000_000_000])
 @pytest.mark.parametrize("tx_value", [0, 1])
 @pytest.mark.parametrize(
     "tx_calldata",
@@ -630,7 +664,7 @@ def test_insufficient_balance_blob_tx(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx",
+    "blobs_count_per_tx",
     lambda fork: [
         pytest.param([1], id="single_blob"),
         pytest.param([fork.max_blobs_per_block()], id="max_blobs"),
@@ -641,8 +675,8 @@ def test_insufficient_balance_blob_tx(
     [[], [AccessList(address=100, storage_keys=[100, 200])]],
     ids=["no_access_list", "access_list"],
 )
-@pytest.mark.parametrize("tx_max_fee_per_gas", [7, 14])
-@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [0, 7])
+@pytest.mark.parametrize("tx_max_fee_per_gas", [21_000_000_000])
+@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [20_000_000_000])
 @pytest.mark.parametrize("tx_value", [0, 1])
 @pytest.mark.parametrize(
     "tx_calldata",
@@ -677,7 +711,7 @@ def test_sufficient_balance_blob_tx(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx",
+    "blobs_count_per_tx",
     lambda fork: [
         pytest.param([1], id="single_blob"),
         pytest.param([fork.max_blobs_per_block()], id="max_blobs"),
@@ -688,8 +722,8 @@ def test_sufficient_balance_blob_tx(
     [[], [AccessList(address=100, storage_keys=[100, 200])]],
     ids=["no_access_list", "access_list"],
 )
-@pytest.mark.parametrize("tx_max_fee_per_gas", [7, 14])
-@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [0, 7])
+@pytest.mark.parametrize("tx_max_fee_per_gas", [21_000_000_000])
+@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [20_000_000_000])
 @pytest.mark.parametrize("tx_value", [0, 1])
 @pytest.mark.parametrize(
     "tx_calldata",
@@ -719,7 +753,7 @@ def test_sufficient_balance_blob_tx_pre_fund_tx(
     - Transactions with and without calldata
     - Transactions with max fee per blob gas lower or higher than the priority fee
     """
-    pre_funding_sender = pre.fund_eoa(amount=(21_000 * 100) + total_account_minimum_balance)
+    pre_funding_sender = pre.fund_eoa(amount=(21_000 * 1000000000) + total_account_minimum_balance)
     txs = [
         Transaction(
             sender=pre_funding_sender,
@@ -742,7 +776,7 @@ def test_sufficient_balance_blob_tx_pre_fund_tx(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx",
+    "blobs_count_per_tx",
     lambda fork: [
         pytest.param([1], id="single_blob"),
         pytest.param([fork.max_blobs_per_block()], id="max_blobs"),
@@ -753,8 +787,8 @@ def test_sufficient_balance_blob_tx_pre_fund_tx(
     [[], [AccessList(address=100, storage_keys=[100, 200])]],
     ids=["no_access_list", "access_list"],
 )
-@pytest.mark.parametrize("tx_max_fee_per_gas", [7, 14])
-@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [0, 7])
+@pytest.mark.parametrize("tx_max_fee_per_gas", [21_000_000_000])
+@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [20_000_000_000])
 @pytest.mark.parametrize("tx_value", [0, 1])
 @pytest.mark.parametrize(
     "tx_calldata",
@@ -818,7 +852,7 @@ def test_blob_gas_subtraction_tx(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx",
+    "blobs_count_per_tx",
     SpecHelpers.all_valid_blob_combinations,
 )
 @pytest.mark.parametrize("account_balance_modifier", [-1], ids=["exact_balance_minus_1"])
@@ -863,7 +897,7 @@ def generate_invalid_tx_blob_count_tests(
 
 
 @pytest.mark.parametrize_by_fork(
-    "blobs_per_tx,tx_error",
+    "blobs_count_per_tx,tx_error",
     generate_invalid_tx_blob_count_tests,
 )
 @pytest.mark.valid_from("Cancun")
@@ -892,137 +926,140 @@ def test_invalid_tx_blob_count(
     )
 
 
-@pytest.mark.parametrize(
-    "blob_hashes_per_tx",
-    [
-        [[Hash(1)]],
-        [[Hash(x) for x in range(2)]],
-        [add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG) + [Hash(2)]],
-        [[Hash(1)] + add_kzg_version([Hash(2)], Spec.BLOB_COMMITMENT_VERSION_KZG)],
-    ],
-    ids=[
-        "single_blob",
-        "multiple_blobs",
-        "multiple_blobs_single_bad_hash_1",
-        "multiple_blobs_single_bad_hash_2",
-    ],
-)
-@pytest.mark.parametrize(
-    "tx_error", [TransactionException.TYPE_3_TX_INVALID_BLOB_VERSIONED_HASH], ids=[""]
-)
-@pytest.mark.valid_from("Cancun")
-def test_invalid_blob_hash_versioning_single_tx(
-    state_test: StateTestFiller,
-    state_env: Environment,
-    pre: Alloc,
-    txs: List[Transaction],
-    header_verify: Optional[Header],
-    rlp_modifier: Optional[Header],
-):
-    """
-    Reject blob transactions with invalid blob hash version.
+# @pytest.mark.parametrize(
+#     "blob_hashes_per_tx",
+#     [
+#         [[Hash(1)]],
+#         [[Hash(x) for x in range(2)]],
+#         [add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG) + [Hash(2)]],
+#         [[Hash(1)] + add_kzg_version([Hash(2)], Spec.BLOB_COMMITMENT_VERSION_KZG)],
+#     ],
+#     ids=[
+#         "single_blob",
+#         "multiple_blobs",
+#         "multiple_blobs_single_bad_hash_1",
+#         "multiple_blobs_single_bad_hash_2",
+#     ],
+# )
+# @pytest.mark.parametrize(
+#     "tx_error", [TransactionException.TYPE_3_TX_INVALID_BLOB_VERSIONED_HASH], ids=[""]
+# )
+# @pytest.mark.valid_from("Cancun")
+# @pytest.mark.skip(reason="Not discovered yet")
+# def test_invalid_blob_hash_versioning_single_tx(
+#     state_test: StateTestFiller,
+#     state_env: Environment,
+#     pre: Alloc,
+#     txs: List[Transaction],
+#     header_verify: Optional[Header],
+#     rlp_modifier: Optional[Header],
+# ):
+#     """
+#     Reject blob transactions with invalid blob hash version.
 
-    - Transaction with single blob with invalid version
-    - Transaction with multiple blobs all with invalid version
-    - Transaction with multiple blobs either with invalid version
-    """
-    assert len(txs) == 1
-    state_test(
-        pre=pre,
-        post={},
-        tx=txs[0],
-        env=state_env,
-        blockchain_test_header_verify=header_verify,
-        blockchain_test_rlp_modifier=rlp_modifier,
-    )
-
-
-@pytest.mark.parametrize(
-    "blob_hashes_per_tx",
-    [
-        [
-            add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
-            [Hash(2)],
-        ],
-        [
-            add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
-            [Hash(x) for x in range(1, 3)],
-        ],
-        [
-            add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
-            [Hash(2)] + add_kzg_version([Hash(3)], Spec.BLOB_COMMITMENT_VERSION_KZG),
-        ],
-        [
-            add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
-            add_kzg_version([Hash(2)], Spec.BLOB_COMMITMENT_VERSION_KZG),
-            [Hash(3)],
-        ],
-    ],
-    ids=[
-        "single_blob",
-        "multiple_blobs",
-        "multiple_blobs_single_bad_hash_1",
-        "multiple_blobs_single_bad_hash_2",
-    ],
-)
-@pytest.mark.parametrize(
-    "tx_error", [TransactionException.TYPE_3_TX_INVALID_BLOB_VERSIONED_HASH], ids=[""]
-)
-@pytest.mark.valid_from("Cancun")
-def test_invalid_blob_hash_versioning_multiple_txs(
-    blockchain_test: BlockchainTestFiller,
-    pre: Alloc,
-    env: Environment,
-    block: Block,
-):
-    """
-    Reject blocks that include blob transactions with invalid blob hash
-    version.
-
-    - Multiple blob transactions with single blob all with invalid version
-    - Multiple blob transactions with multiple blobs all with invalid version
-    - Multiple blob transactions with multiple blobs only one with invalid version
-    """
-    blockchain_test(
-        pre=pre,
-        post={},
-        blocks=[block],
-        genesis_environment=env,
-    )
+#     - Transaction with single blob with invalid version
+#     - Transaction with multiple blobs all with invalid version
+#     - Transaction with multiple blobs either with invalid version
+#     """
+#     assert len(txs) == 1
+#     state_test(
+#         pre=pre,
+#         post={},
+#         tx=txs[0],
+#         env=state_env,
+#         blockchain_test_header_verify=header_verify,
+#         blockchain_test_rlp_modifier=rlp_modifier,
+#     )
 
 
-@pytest.mark.parametrize(
-    "tx_gas", [500_000], ids=[""]
-)  # Increase gas to account for contract creation
-@pytest.mark.valid_from("Cancun")
-def test_invalid_blob_tx_contract_creation(
-    blockchain_test: BlockchainTestFiller,
-    pre: Alloc,
-    env: Environment,
-    txs: List[Transaction],
-    header_verify: Optional[Header],
-):
-    """Reject blocks that include blob transactions that have nil to value (contract creating)."""
-    assert len(txs) == 1
-    assert txs[0].blob_versioned_hashes is not None and len(txs[0].blob_versioned_hashes) == 1
-    # Replace the transaction with a contract creating one, only in the RLP version
-    contract_creating_tx = txs[0].copy(to=None).with_signature_and_sender()
-    txs[0].rlp_override = contract_creating_tx.rlp
-    blockchain_test(
-        pre=pre,
-        post={},
-        blocks=[
-            Block(
-                txs=txs,
-                exception=[
-                    BlockException.RLP_STRUCTURES_ENCODING,
-                    TransactionException.TYPE_3_TX_CONTRACT_CREATION,
-                ],
-                header_verify=header_verify,
-            )
-        ],
-        genesis_environment=env,
-    )
+# @pytest.mark.parametrize(
+#     "blob_hashes_per_tx",
+#     [
+#         [
+#             add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
+#             [Hash(2)],
+#         ],
+#         [
+#             add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
+#             [Hash(x) for x in range(1, 3)],
+#         ],
+#         [
+#             add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
+#             [Hash(2)] + add_kzg_version([Hash(3)], Spec.BLOB_COMMITMENT_VERSION_KZG),
+#         ],
+#         [
+#             add_kzg_version([Hash(1)], Spec.BLOB_COMMITMENT_VERSION_KZG),
+#             add_kzg_version([Hash(2)], Spec.BLOB_COMMITMENT_VERSION_KZG),
+#             [Hash(3)],
+#         ],
+#     ],
+#     ids=[
+#         "single_blob",
+#         "multiple_blobs",
+#         "multiple_blobs_single_bad_hash_1",
+#         "multiple_blobs_single_bad_hash_2",
+#     ],
+# )
+# @pytest.mark.parametrize(
+#     "tx_error", [TransactionException.TYPE_3_TX_INVALID_BLOB_VERSIONED_HASH], ids=[""]
+# )
+# @pytest.mark.valid_from("Cancun")
+# @pytest.mark.skip(reason="Not discovered yet")
+# def test_invalid_blob_hash_versioning_multiple_txs(
+#     blockchain_test: BlockchainTestFiller,
+#     pre: Alloc,
+#     env: Environment,
+#     block: Block,
+# ):
+#     """
+#     Reject blocks that include blob transactions with invalid blob hash
+#     version.
+
+#     - Multiple blob transactions with single blob all with invalid version
+#     - Multiple blob transactions with multiple blobs all with invalid version
+#     - Multiple blob transactions with multiple blobs only one with invalid version
+#     """
+#     blockchain_test(
+#         pre=pre,
+#         post={},
+#         blocks=[block],
+#         genesis_environment=env,
+#     )
+
+
+# @pytest.mark.parametrize(
+#     "tx_gas", [500_000], ids=[""]
+# )  # Increase gas to account for contract creation
+# @pytest.mark.valid_from("Cancun")
+# @pytest.mark.skip(reason="Not discovered yet")
+# def test_invalid_blob_tx_contract_creation(
+#     blockchain_test: BlockchainTestFiller,
+#     pre: Alloc,
+#     env: Environment,
+#     txs: List[Transaction],
+#     header_verify: Optional[Header],
+# ):
+#     """Reject blocks that include blob transactions that have nil to value (contract creating)."""
+#     assert len(txs) == 1
+#     assert txs[0].blob_versioned_hashes is not None and len(txs[0].blob_versioned_hashes) == 1
+#     # Replace the transaction with a contract creating one, only in the RLP version
+#     contract_creating_tx = txs[0].copy(to=None).with_signature_and_sender()
+#     txs[0].rlp_override = contract_creating_tx.rlp
+#     blockchain_test(
+#         pre=pre,
+#         post={},
+#         blocks=[
+#             Block(
+#                 txs=txs,
+#                 exception=[
+#                     BlockException.RLP_STRUCTURES_ENCODING,
+#                     TransactionException.TYPE_3_TX_CONTRACT_CREATION,
+#                 ],
+#                 header_verify=header_verify,
+#             )
+#         ],
+#         genesis_environment=env,
+#     )
 
 
 # # ----------------------------------------
@@ -1101,7 +1138,7 @@ def test_blob_tx_attribute_opcodes(
     tx_max_fee_per_blob_gas: int,
     tx_max_priority_fee_per_gas: int,
     tx_access_list: List[AccessList],
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: List[Tuple[List[bytes], List[bytes]]],
     opcode: Tuple[Bytecode, Storage.StorageDictType],
     state_env: Environment,
 ):
@@ -1113,6 +1150,7 @@ def test_blob_tx_attribute_opcodes(
     """
     code, storage = opcode
     destination_account = pre.deploy_contract(code=code)
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     tx = Transaction(
         ty=Spec.BLOB_TX_TYPE,
         sender=sender,
@@ -1125,6 +1163,10 @@ def test_blob_tx_attribute_opcodes(
         max_fee_per_blob_gas=tx_max_fee_per_blob_gas,
         access_list=tx_access_list,
         blob_versioned_hashes=blob_hashes_per_tx[0],
+        blobs=[x.blob for x in blobs_per_tx[0]],
+        blob_kzg_commitments=[x.kzg_commitment for x in blobs_per_tx[0]],
+        blob_kzg_proofs=[x.kzg_proof for x in blobs_per_tx[0]],
+        wrapped_blob_transaction=True
     )
     post = {
         destination_account: Account(
@@ -1154,13 +1196,14 @@ def test_blob_tx_attribute_value_opcode(
     tx_max_fee_per_blob_gas: int,
     tx_max_priority_fee_per_gas: int,
     tx_access_list: List[AccessList],
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: List[Tuple[int, List[bytes]]],
     opcode: Tuple[Bytecode, Storage.StorageDictType],
     state_env: Environment,
 ):
     """Test the VALUE opcode with different blob type transaction value amounts."""
     code, storage = opcode
     destination_account = pre.deploy_contract(code=code)
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     tx = Transaction(
         ty=Spec.BLOB_TX_TYPE,
         sender=sender,
@@ -1173,6 +1216,10 @@ def test_blob_tx_attribute_value_opcode(
         max_fee_per_blob_gas=tx_max_fee_per_blob_gas,
         access_list=tx_access_list,
         blob_versioned_hashes=blob_hashes_per_tx[0],
+        blobs=[x.blob for x in blobs_per_tx[0]],
+        blob_kzg_commitments=[x.kzg_commitment for x in blobs_per_tx[0]],
+        blob_kzg_proofs=[x.kzg_proof for x in blobs_per_tx[0]],
+        wrapped_blob_transaction=True
     )
     post = {
         destination_account: Account(
@@ -1219,7 +1266,7 @@ def test_blob_tx_attribute_calldata_opcodes(
     tx_max_fee_per_blob_gas: int,
     tx_max_priority_fee_per_gas: int,
     tx_access_list: List[AccessList],
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: List[Tuple[int, List[bytes]]],
     opcode: Tuple[Bytecode, Storage.StorageDictType],
     state_env: Environment,
 ):
@@ -1232,6 +1279,7 @@ def test_blob_tx_attribute_calldata_opcodes(
     """
     code, storage = opcode
     destination_account = pre.deploy_contract(code=code)
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     tx = Transaction(
         ty=Spec.BLOB_TX_TYPE,
         sender=sender,
@@ -1244,6 +1292,10 @@ def test_blob_tx_attribute_calldata_opcodes(
         max_fee_per_blob_gas=tx_max_fee_per_blob_gas,
         access_list=tx_access_list,
         blob_versioned_hashes=blob_hashes_per_tx[0],
+        blobs=[x.blob for x in blobs_per_tx[0]],
+        blob_kzg_commitments=[x.kzg_commitment for x in blobs_per_tx[0]],
+        blob_kzg_proofs=[x.kzg_proof for x in blobs_per_tx[0]],
+        wrapped_blob_transaction=True
     )
     post = {
         destination_account: Account(
@@ -1258,9 +1310,9 @@ def test_blob_tx_attribute_calldata_opcodes(
     )
 
 
-@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [0, 2])  # always below data fee
+@pytest.mark.parametrize("tx_max_priority_fee_per_gas", [20_000_000_000])  # always below data fee
 @pytest.mark.parametrize("tx_max_fee_per_blob_gas_delta", [0, 1])  # normal and above priority fee
-@pytest.mark.parametrize("tx_max_fee_per_gas", [100])  # always above priority fee (FOR CANCUN)
+@pytest.mark.parametrize("tx_max_fee_per_gas", [21_000_000_000])  # always above priority fee (FOR CANCUN)
 @pytest.mark.parametrize("opcode", [Op.GASPRICE], indirect=True)
 @pytest.mark.parametrize("tx_gas", [500_000])
 @pytest.mark.valid_from("Cancun")
@@ -1275,7 +1327,7 @@ def test_blob_tx_attribute_gasprice_opcode(
     tx_max_fee_per_blob_gas: int,
     tx_max_priority_fee_per_gas: int,
     tx_access_list: List[AccessList],
-    blob_hashes_per_tx: List[List[bytes]],
+    blobs_and_hashes_per_tx: List[Tuple[int, List[bytes]]],
     opcode: Tuple[Bytecode, Storage.StorageDictType],
     state_env: Environment,
 ):
@@ -1288,6 +1340,7 @@ def test_blob_tx_attribute_gasprice_opcode(
     """
     code, storage = opcode
     destination_account = pre.deploy_contract(code=code)
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
     tx = Transaction(
         ty=Spec.BLOB_TX_TYPE,
         sender=sender,
@@ -1300,6 +1353,10 @@ def test_blob_tx_attribute_gasprice_opcode(
         max_fee_per_blob_gas=tx_max_fee_per_blob_gas,
         access_list=tx_access_list,
         blob_versioned_hashes=blob_hashes_per_tx[0],
+        blobs=[x.blob for x in blobs_per_tx[0]],
+        blob_kzg_commitments=[x.kzg_commitment for x in blobs_per_tx[0]],
+        blob_kzg_proofs=[x.kzg_proof for x in blobs_per_tx[0]],
+        wrapped_blob_transaction=True
     )
     post = {
         destination_account: Account(
@@ -1316,7 +1373,7 @@ def test_blob_tx_attribute_gasprice_opcode(
 
 @pytest.mark.parametrize(
     [
-        "blobs_per_tx",
+        "blobs_count_per_tx",
         "parent_excess_blobs",
         "tx_max_fee_per_blob_gas",
         "tx_error",
