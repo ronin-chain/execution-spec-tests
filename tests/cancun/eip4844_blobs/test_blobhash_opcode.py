@@ -17,7 +17,7 @@ note: Adding a new test
 
 """  # noqa: E501
 
-from typing import List
+from typing import List, Tuple
 
 import pytest
 
@@ -35,8 +35,9 @@ from ethereum_test_tools import (
     Transaction,
 )
 from ethereum_test_tools.vm.opcode import Opcodes as Op
+from ethereum_test_types.helpers import blob_to_kzg_commitment, compute_blob_kzg_proof, generate_random_blob
 
-from .common import BlobhashScenario, random_blob_hashes
+from .common import BlobhashScenario, random_blob_hashes, Blob
 from .spec import Spec, ref_spec_4844
 
 REFERENCE_SPEC_GIT_PATH = ref_spec_4844.git_path
@@ -56,6 +57,35 @@ blobhash_index_values = [
     0xA12C8B6A8B11410C7D98D790E1098F1ED6D93CB7A64711481AAAB1848E13212F,
 ]
 
+def blobs_per_tx_fork(blobs_count_per_tx: List[int]) -> List[List[Blob]]:
+    """
+    Produce the list of blob that are sent during the test.
+    """
+    blobs = []
+    for blob_count in blobs_count_per_tx:
+        blobs.append([])
+        for i in range(blob_count):
+            blob = generate_random_blob()
+            commitment = blob_to_kzg_commitment(blob)
+            proof = compute_blob_kzg_proof(blob, commitment)
+            blobs[-1].append(Blob(blob=blob, kzg_commitment=commitment, kzg_proof=proof))
+    return blobs
+
+@pytest.fixture
+def blobs_and_hashes_per_tx(fork: Fork) -> Tuple[List[List[Blob]], List[List[bytes]]]:
+    """
+    Produce the list of blob and blob hashes that are sent during the test.
+    """
+    blobs_per_tx = blobs_per_tx_fork([fork.target_blobs_per_block()])
+    return blobs_per_tx, [[blob.versioned_hash() for blob in blobs] for blobs in blobs_per_tx]
+
+@pytest.fixture
+def blobs_and_hashes_per_tx_fork_max(total_blocks: int, fork: Fork) -> Tuple[List[List[Blob]], List[List[bytes]]]:
+    """
+    Produce the list of blob and blob hashes that are sent during the test.
+    """
+    blobs_per_tx = blobs_per_tx_fork([fork.max_blobs_per_block()] * total_blocks)
+    return blobs_per_tx, [[blob.versioned_hash() for blob in blobs] for blobs in blobs_per_tx]
 
 @pytest.mark.parametrize("blobhash_index", blobhash_index_values)
 @pytest.mark.with_all_tx_types
@@ -66,6 +96,7 @@ def test_blobhash_gas_cost(
     blobhash_index: int,
     state_test: StateTestFiller,
     target_blobs_per_block: int,
+    blobs_and_hashes_per_tx: Tuple[List[List[Blob]], List[List[bytes]]],
 ):
     """
     Tests `BLOBHASH` opcode gas cost using a variety of indexes.
@@ -82,6 +113,7 @@ def test_blobhash_gas_cost(
 
     address = pre.deploy_contract(gas_measure_code)
     sender = pre.fund_eoa()
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx
 
     tx = Transaction(
         ty=tx_type,
@@ -89,15 +121,21 @@ def test_blobhash_gas_cost(
         to=address,
         data=Hash(0),
         gas_limit=3_000_000,
-        gas_price=10 if tx_type < 2 else None,
+        gas_price=1_000_000_000 if tx_type < 2 else None,
         access_list=[] if tx_type >= 1 else None,
-        max_fee_per_gas=10 if tx_type >= 2 else None,
-        max_priority_fee_per_gas=10 if tx_type >= 2 else None,
+        max_fee_per_gas=21_000_000_000 if tx_type >= 2 else None,
+        max_priority_fee_per_gas=20_000_000_000 if tx_type >= 2 else None,
         max_fee_per_blob_gas=(fork.min_base_fee_per_blob_gas() * 10) if tx_type == 3 else None,
         blob_versioned_hashes=random_blob_hashes[0:target_blobs_per_block]
         if tx_type == 3
         else None,
     )
+    if tx_type == 3:
+        tx.blob_versioned_hashes = blob_hashes_per_tx[0]
+        tx.blobs = [x.blob for x in blobs_per_tx[0]]
+        tx.blob_kzg_commitments = [x.kzg_commitment for x in blobs_per_tx[0]]
+        tx.blob_kzg_proofs = [x.kzg_proof for x in blobs_per_tx[0]]
+        tx.wrapped_blob_transaction = True
     post = {address: Account(storage={0: Spec.HASH_GAS_COST})}
 
     state_test(
@@ -107,7 +145,7 @@ def test_blobhash_gas_cost(
         post=post,
     )
 
-
+@pytest.mark.parametrize("total_blocks", [5])
 @pytest.mark.parametrize(
     "scenario",
     [
@@ -121,8 +159,10 @@ def test_blobhash_scenarios(
     pre: Alloc,
     fork: Fork,
     scenario: str,
+    total_blocks: int,
     blockchain_test: BlockchainTestFiller,
     max_blobs_per_block: int,
+    blobs_and_hashes_per_tx_fork_max: Tuple[List[List[Blob]], List[List[bytes]]],
 ):
     """
     Tests that the `BLOBHASH` opcode returns the correct versioned hash for
@@ -131,14 +171,11 @@ def test_blobhash_scenarios(
     Covers various scenarios with random `blob_versioned_hash` values within
     the valid range `[0, 2**256-1]`.
     """
-    total_blocks = 5
-    b_hashes_list = BlobhashScenario.create_blob_hashes_list(
-        length=total_blocks, max_blobs_per_block=max_blobs_per_block
-    )
     blobhash_calls = BlobhashScenario.generate_blobhash_bytecode(
         scenario_name=scenario, max_blobs_per_block=max_blobs_per_block
     )
     sender = pre.fund_eoa()
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx_fork_max
 
     blocks: List[Block] = []
     post = {}
@@ -154,16 +191,20 @@ def test_blobhash_scenarios(
                         data=Hash(0),
                         gas_limit=3_000_000,
                         access_list=[],
-                        max_fee_per_gas=10,
-                        max_priority_fee_per_gas=10,
+                        max_fee_per_gas=21_000_000_000,
+                        max_priority_fee_per_gas=20_000_000_000,
                         max_fee_per_blob_gas=(fork.min_base_fee_per_blob_gas() * 10),
-                        blob_versioned_hashes=b_hashes_list[i],
+                        blob_versioned_hashes=blob_hashes_per_tx[i],
+                        blob_kzg_commitments=[x.kzg_commitment for x in blobs_per_tx[i]],
+                        blob_kzg_proofs=[x.kzg_proof for x in blobs_per_tx[i]],
+                        blobs=[x.blob for x in blobs_per_tx[i]],
+                        wrapped_blob_transaction=True,
                     )
                 ]
             )
         )
         post[address] = Account(
-            storage={index: b_hashes_list[i][index] for index in range(max_blobs_per_block)}
+            storage={index: blob_hashes_per_tx[i][index] for index in range(max_blobs_per_block)}
         )
     blockchain_test(
         pre=pre,
@@ -171,7 +212,7 @@ def test_blobhash_scenarios(
         post=post,
     )
 
-
+@pytest.mark.parametrize("total_blocks", [5])
 @pytest.mark.parametrize(
     "scenario",
     [
@@ -181,9 +222,11 @@ def test_blobhash_scenarios(
 def test_blobhash_invalid_blob_index(
     pre: Alloc,
     fork: Fork,
+    total_blocks: int,
     blockchain_test: BlockchainTestFiller,
     scenario: str,
     max_blobs_per_block: int,
+    blobs_and_hashes_per_tx_fork_max: Tuple[List[List[Blob]], List[List[bytes]]],
 ):
     """
     Tests that the `BLOBHASH` opcode returns a zeroed `bytes32` value for invalid
@@ -195,17 +238,16 @@ def test_blobhash_invalid_blob_index(
 
     It confirms that the returned value is a zeroed `bytes32` for each case.
     """
-    total_blocks = 5
     blobhash_calls = BlobhashScenario.generate_blobhash_bytecode(
         scenario_name=scenario, max_blobs_per_block=max_blobs_per_block
     )
     sender = pre.fund_eoa()
+    blobs_per_tx, blob_hashes_per_tx = blobs_and_hashes_per_tx_fork_max
     blocks: List[Block] = []
     post = {}
     for i in range(total_blocks):
         address = pre.deploy_contract(blobhash_calls)
         blob_per_block = (i % max_blobs_per_block) + 1
-        blobs = [random_blob_hashes[blob] for blob in range(blob_per_block)]
         blocks.append(
             Block(
                 txs=[
@@ -216,17 +258,21 @@ def test_blobhash_invalid_blob_index(
                         gas_limit=3_000_000,
                         data=Hash(0),
                         access_list=[],
-                        max_fee_per_gas=10,
-                        max_priority_fee_per_gas=10,
+                        max_fee_per_gas=21_000_000_000,
+                        max_priority_fee_per_gas=20_000_000_000,
                         max_fee_per_blob_gas=(fork.min_base_fee_per_blob_gas() * 10),
-                        blob_versioned_hashes=blobs,
+                        blob_versioned_hashes=blob_hashes_per_tx[i][:blob_per_block],
+                        blob_kzg_commitments=[x.kzg_commitment for x in blobs_per_tx[i][:blob_per_block]],
+                        blob_kzg_proofs=[x.kzg_proof for x in blobs_per_tx[i][:blob_per_block]],
+                        blobs=[x.blob for x in blobs_per_tx[i][:blob_per_block]],
+                        wrapped_blob_transaction=True,
                     )
                 ]
             )
         )
         post[address] = Account(
             storage={
-                index: (0 if index < 0 or index >= blob_per_block else blobs[index])
+                index: (0 if index < 0 or index >= blob_per_block else blob_hashes_per_tx[i][index])
                 for index in range(
                     -total_blocks,
                     blob_per_block + (total_blocks - (i % max_blobs_per_block)),
@@ -239,7 +285,8 @@ def test_blobhash_invalid_blob_index(
         post=post,
     )
 
-
+@pytest.mark.skip(reason="Not discovered yet, need to submit txs at different blocks but blockchain\
+                  test submit all txs in the same block")
 def test_blobhash_multiple_txs_in_block(
     pre: Alloc,
     fork: Fork,

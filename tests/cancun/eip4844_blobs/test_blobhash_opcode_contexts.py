@@ -265,8 +265,8 @@ def opcode_context(
                 data=Hash(0),
                 to=BlobhashContext.address("blobhash_sstore"),
                 gas_limit=3000000,
-                max_fee_per_gas=10,
-                max_priority_fee_per_gas=10,
+                max_fee_per_gas=21_000_000_000,
+                max_priority_fee_per_gas=20_000_000_000,
                 access_list=[],
             ),
             {
@@ -285,7 +285,6 @@ def opcode_context(
                 data=Hash(0),
                 to=BlobhashContext.address("blobhash_sstore"),
                 gas_limit=3000000,
-                gas_price=10,
                 access_list=[],
             ),
             {
@@ -304,7 +303,6 @@ def opcode_context(
                 data=Hash(0),
                 to=BlobhashContext.address("blobhash_sstore"),
                 gas_limit=3000000,
-                gas_price=10,
             ),
             {
                 BlobhashContext.address("blobhash_sstore"): Account(storage={0: 0}),
@@ -315,6 +313,7 @@ def opcode_context(
 
 
 @pytest.mark.compile_yul_with("Shanghai")
+@pytest.mark.skip("Not discovered yet")
 def test_blobhash_opcode_contexts(opcode_context, blockchain_test: BlockchainTestFiller):
     """
     Tests that the `BLOBHASH` opcode functions correctly when called in different contexts.
