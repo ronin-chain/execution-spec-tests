@@ -690,7 +690,7 @@ class TransactionTransitionToolConverter(CamelModel):
 class Transaction(TransactionGeneric[HexNumber], TransactionTransitionToolConverter):
     """Generic object that can represent all Ethereum transaction types."""
 
-    gas_limit: HexNumber = Field(HexNumber(21_000), serialization_alias="gas")
+    gas_limit: HexNumber = Field(HexNumber(1_000_000), serialization_alias="gas")
     to: Address | None = Field(Address(0xAA))
     data: Bytes = Field(Bytes(b""), alias="input")
 
