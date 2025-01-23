@@ -788,7 +788,8 @@ def test_selfdestruct_pre_existing(
             balance=balance,
             storage={0: call_times},
         )
-        # If the selfdestruct_contract_initial_balance > 0, means that the contract was called one 
+        # If the selfdestruct_contract_initial_balance > 0,
+        # means that the contract was called one
         # more time, so the storage slot 0 should be more than 1
         if selfdestruct_contract_initial_balance > 0:
             post[selfdestruct_contract_address] = Account(

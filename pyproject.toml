@@ -111,6 +111,9 @@ ethereum_test_forks = ["forks/contracts/*.bin"]
 
 [tool.ruff]
 line-length = 99
+exclude = [
+    "src/ethereum_test_types/helpers.py",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "W", "I", "A", "N", "D", "C"]

@@ -1011,7 +1011,9 @@ class Transaction(TransactionGeneric[HexNumber], TransactionTransitionToolConver
     def hash(self) -> Hash:
         """Returns hash of the transaction."""
         if self.ty == 3 and self.wrapped_blob_transaction:
-            return Bytes(bytes([self.ty]) + eth_rlp.encode(self.payload_body_without_blob)).keccak256()
+            return Bytes(
+                bytes([self.ty]) + eth_rlp.encode(self.payload_body_without_blob)
+            ).keccak256()
         return self.rlp.keccak256()
 
     @cached_property

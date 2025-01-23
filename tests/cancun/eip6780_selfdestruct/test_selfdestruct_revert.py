@@ -28,6 +28,7 @@ SELFDESTRUCT_ENABLE_FORK = Cancun
 
 pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mode")
 
+
 @pytest.fixture
 def entry_code_address() -> Address:
     """Address where the entry code will run."""
