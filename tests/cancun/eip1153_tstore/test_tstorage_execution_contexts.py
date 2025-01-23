@@ -31,11 +31,6 @@ pytestmark = [pytest.mark.valid_from("Cancun")]
 PUSH_OPCODE_COST = 3
 
 
-@pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
 class DynamicCallContextTestCases(EnumMeta):
     """
     Create dynamic transient storage test cases for contract sub-calls

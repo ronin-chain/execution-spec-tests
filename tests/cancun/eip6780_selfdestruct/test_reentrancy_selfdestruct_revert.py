@@ -24,11 +24,6 @@ pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mo
 
 
 @pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
-@pytest.fixture
 def env():  # noqa: D103
     return Environment(
         fee_recipient="0x2adc25665018aa1fe0e6bc666dac8fc2697ff9ba",

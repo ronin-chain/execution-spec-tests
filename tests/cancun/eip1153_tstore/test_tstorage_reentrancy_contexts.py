@@ -36,11 +36,6 @@ REENTRANT_CALL: Bytecode = Op.MSTORE(0, 2) + Op.SSTORE(
 )
 
 
-@pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
 class DynamicReentrancyTestCases(EnumMeta):
     """
     Create dynamic transient storage test cases which REVERT or receive INVALID

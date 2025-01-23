@@ -26,11 +26,6 @@ REFERENCE_SPEC_GIT_PATH = ref_spec_1153.git_path
 REFERENCE_SPEC_VERSION = ref_spec_1153.version
 
 
-@pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
 @pytest.mark.valid_from("Cancun")
 @pytest.mark.with_all_evm_code_types
 def test_tstore_clear_after_deployment_tx(

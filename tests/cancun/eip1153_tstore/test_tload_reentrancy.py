@@ -33,11 +33,6 @@ class CallDestType(Enum):
     EXTERNAL_CALL = 2
 
 
-@pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
 @pytest.mark.valid_from("Cancun")
 @pytest.mark.parametrize("call_type", [Op.CALL, Op.CALLCODE, Op.DELEGATECALL, Op.STATICCALL])
 @pytest.mark.parametrize("call_return", [Op.RETURN, Op.REVERT, Om.OOG])

@@ -29,11 +29,6 @@ REFERENCE_SPEC_VERSION = ref_spec_1153.version
 pytestmark = [pytest.mark.valid_from("Cancun")]
 
 
-@pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
 @unique
 class InitcodeTestCases(PytestParameterEnum):
     """

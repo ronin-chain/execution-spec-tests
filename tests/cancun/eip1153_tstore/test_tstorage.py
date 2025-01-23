@@ -31,11 +31,6 @@ pytestmark = [pytest.mark.valid_from("Cancun")]
 code_address = 0x100
 
 
-@pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
 def test_transient_storage_unset_values(
     state_test: StateTestFiller,
     pre: Alloc,

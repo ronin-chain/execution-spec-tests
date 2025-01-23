@@ -30,11 +30,6 @@ pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mo
 
 
 @pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
-@pytest.fixture
 def entry_code_address() -> Address:
     """Address where the entry code will run."""
     return compute_create_address(address=TestAddress, nonce=0)

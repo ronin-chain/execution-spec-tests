@@ -50,11 +50,6 @@ PRE_DEPLOY_CONTRACT_3 = "pre_deploy_contract_3"
 
 
 @pytest.fixture
-def tx_gas_limit() -> int:  # noqa: D103
-    return 3_000_000
-
-
-@pytest.fixture
 def eip_enabled(fork: Fork) -> bool:
     """Whether the EIP is enabled or not."""
     return fork >= SELFDESTRUCT_DISABLE_FORK
