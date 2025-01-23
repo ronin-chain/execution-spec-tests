@@ -1,20 +1,17 @@
 """Helper functions/classes used to generate Ethereum tests."""
 
-from dataclasses import MISSING, dataclass, fields
-import hashlib
 import os
 import struct
+from dataclasses import MISSING, dataclass, fields
 from typing import List, SupportsBytes
 
+import ckzg
 from ethereum.rlp import encode
 
 from ethereum_test_base_types.base_types import Address, Bytes, Hash
 from ethereum_test_base_types.conversions import BytesConvertible, FixedSizeBytesConvertible
 from ethereum_test_vm import Opcodes as Op
-
 from .types import EOA, int_to_bytes
-
-import ckzg
 
 # Blob constants
 BLOB_FIELD_SIZE = int(32)  # 32 bytes per field element
@@ -237,7 +234,7 @@ def to_mont(x):
     return result
 
 # FromMont function
-def from_mont(z):
+def from_mont(z): # pylint: disable=N806
     m = (z[0] * q_inv_neg) & ((1 << 64) - 1)
     C = madd0(m, q0, z[0])
     C, z[0] = madd2(m, q1, z[1], C)
@@ -274,11 +271,13 @@ def from_mont(z):
         z[3], _ = sub64(z[3], q3, b)
 
 def smaller_than_modulus(z):
-    return z[3] < q3 or (z[3] == q3 and (z[2] < q2 or (z[2] == q2 and (z[1] < q1 or (z[1] == q1 and z[0] < q0)))))
+    """Check if z is smaller than the modulus."""
+    return z[3] < q3 or (z[3] == q3 and
+                         (z[2] < q2 or (z[2] == q2 and (z[1] < q1 or (z[1] == q1 and z[0] < q0)))))
 
 def rand_field_element():
+    """Generate a random field element."""
     bs = os.urandom(32)
-    
     r = [0] * 4
     r[3] = struct.unpack(">Q", bs[:8])[0]
     r[2] = struct.unpack(">Q", bs[8:16])[0]
@@ -383,7 +382,7 @@ def add_kzg_version(
 def generate_random_blob() -> bytes:
     """
     Generate a random blob.
-    :return: A random blob. 
+    :return: A random blob.
     """
     return b"".join(rand_field_element() for _ in range(4096))
 
