@@ -277,7 +277,11 @@ class ReentrancyTestCases(PytestParameterEnum, metaclass=DynamicReentrancyTestCa
 
 @ReentrancyTestCases.parametrize()
 def test_reentrant_call(
-    state_test: StateTestFiller, pre: Alloc, bytecode: Bytecode, expected_storage: Dict
+    state_test: StateTestFiller,
+    pre: Alloc,
+    bytecode: Bytecode,
+    expected_storage: Dict,
+    tx_gas_limit: int,
 ):
     """Test transient storage in different reentrancy contexts."""
     env = Environment()
@@ -288,7 +292,7 @@ def test_reentrant_call(
         sender=pre.fund_eoa(),
         to=callee_address,
         data=Hash(1),
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
     post = {callee_address: Account(code=bytecode, storage=expected_storage)}

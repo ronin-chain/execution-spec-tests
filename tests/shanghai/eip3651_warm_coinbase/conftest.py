@@ -21,3 +21,8 @@ def post() -> Alloc:
 def sender(pre: Alloc) -> EOA:
     """Funded EOA used for sending transactions."""
     return pre.fund_eoa()
+
+
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000

@@ -61,6 +61,7 @@ def test_dynamic_create2_selfdestruct_collision(
     create2_dest_already_in_state: bool,
     call_create2_contract_in_between: bool,
     call_create2_contract_at_the_end: bool,
+    tx_gas_limit: int,
     state_test: StateTestFiller,
 ):
     """
@@ -225,7 +226,7 @@ def test_dynamic_create2_selfdestruct_collision(
         gas_price=10,
         protected=False,
         data=initcode,
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 
@@ -246,6 +247,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
     fork: Fork,
     create2_dest_already_in_state: bool,
     call_create2_contract_at_the_end: bool,
+    tx_gas_limit: int,
     blockchain_test: BlockchainTestFiller,
 ):
     """
@@ -458,7 +460,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
                         gas_price=10,
                         protected=False,
                         data=initcode,
-                        gas_limit=5000000,
+                        gas_limit=tx_gas_limit,
                         value=0,
                     ),
                     Transaction(
@@ -469,7 +471,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
                         gas_price=10,
                         protected=False,
                         data=initcode,
-                        gas_limit=5000000,
+                        gas_limit=tx_gas_limit,
                         value=0,
                     ),
                 ]
@@ -491,6 +493,7 @@ def test_dynamic_create2_selfdestruct_collision_multi_tx(
     fork: Fork,
     selfdestruct_on_first_tx: bool,
     recreate_on_first_tx: bool,
+    tx_gas_limit: int,
     blockchain_test: BlockchainTestFiller,
 ):
     """
@@ -697,7 +700,7 @@ def test_dynamic_create2_selfdestruct_collision_multi_tx(
                         gas_price=10,
                         protected=False,
                         data=initcode,
-                        gas_limit=5000000,
+                        gas_limit=tx_gas_limit,
                         value=0,
                     ),
                     Transaction(
@@ -708,7 +711,7 @@ def test_dynamic_create2_selfdestruct_collision_multi_tx(
                         gas_price=10,
                         protected=False,
                         data=initcode,
-                        gas_limit=5000000,
+                        gas_limit=tx_gas_limit,
                         value=0,
                     ),
                 ]

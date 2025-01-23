@@ -222,6 +222,7 @@ def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
     selfdestruct_with_transfer_initcode_copy_from_address: Address,
     recursive_revert_contract_address: Address,
     recursive_revert_contract_code: Bytecode,
+    tx_gas_limit: int,
 ):
     """
     Given:
@@ -302,7 +303,7 @@ def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
         chain_id=0x0,
         nonce=next(nonce),
         to=None,
-        gas_limit=100_000_000,
+        gas_limit=tx_gas_limit,
         gas_price=10,
         protected=False,
     )
@@ -349,6 +350,7 @@ def test_selfdestruct_not_created_in_same_tx_with_revert(
     selfdestruct_recipient_address: Address,
     recursive_revert_contract_address: Address,
     recursive_revert_contract_code: Bytecode,
+    tx_gas_limit: int,
 ):
     """
     Same test as selfdestruct_created_in_same_tx_with_revert except selfdestructable contract
@@ -417,7 +419,7 @@ def test_selfdestruct_not_created_in_same_tx_with_revert(
         chain_id=0x0,
         nonce=next(nonce),
         to=None,
-        gas_limit=100_000_000,
+        gas_limit=tx_gas_limit,
         gas_price=10,
         protected=False,
     )

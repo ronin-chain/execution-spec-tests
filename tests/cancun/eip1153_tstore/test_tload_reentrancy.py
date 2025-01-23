@@ -43,6 +43,7 @@ def test_tload_reentrancy(
     call_type: Op,
     call_return: Op,
     call_dest_type: CallDestType,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -152,7 +153,7 @@ def test_tload_reentrancy(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=Hash(do_reenter),
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 

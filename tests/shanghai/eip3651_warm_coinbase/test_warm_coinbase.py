@@ -78,6 +78,7 @@ def test_warm_coinbase_call_out_of_gas(
     contract_under_test_code: Bytecode,
     call_gas_exact: int,
     use_sufficient_gas: bool,
+    tx_gas_limit: int,
 ):
     """
     Test that the coinbase is warm by accessing the COINBASE with each
@@ -103,7 +104,7 @@ def test_warm_coinbase_call_out_of_gas(
         ty=0x0,
         nonce=0,
         to=caller_address,
-        gas_limit=10_000_000,
+        gas_limit=tx_gas_limit,
         sender=sender,
     )
 
@@ -215,6 +216,7 @@ def test_warm_coinbase_gas_usage(
     fork: Fork,
     opcode: str,
     code_gas_measure: Bytecode,
+    tx_gas_limit: int,
 ):
     """
     Test the gas usage of opcodes affected by assuming a warm coinbase.
@@ -241,7 +243,7 @@ def test_warm_coinbase_gas_usage(
         ty=0x0,
         nonce=0,
         to=measure_address,
-        gas_limit=10_000_000,
+        gas_limit=tx_gas_limit,
         sender=sender,
     )
 
