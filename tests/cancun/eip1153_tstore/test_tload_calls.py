@@ -15,7 +15,7 @@ REFERENCE_SPEC_VERSION = "2f8299df31bb8173618901a03a8366a3183479b0"
 
 @pytest.mark.valid_from("Cancun")
 @pytest.mark.parametrize("call_type", [Op.CALL, Op.CALLCODE, Op.DELEGATECALL])
-def test_tload_calls(state_test: StateTestFiller, pre: Alloc, call_type: Op):
+def test_tload_calls(state_test: StateTestFiller, pre: Alloc, call_type: Op, tx_gas_limit: int):
     """
     Ported .json vectors.
 
@@ -84,7 +84,7 @@ def test_tload_calls(state_test: StateTestFiller, pre: Alloc, call_type: Op):
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=b"",
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 

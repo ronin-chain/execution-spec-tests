@@ -34,7 +34,7 @@ def pytest_addoption(parser):
         action="store",
         dest="default_gas_price",
         type=int,
-        default=2 * 10**9,
+        default=20 * 10**9,
         help=("Default gas price used for transactions, unless overridden by the test."),
     )
     execute_group.addoption(

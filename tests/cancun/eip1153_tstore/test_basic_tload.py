@@ -20,6 +20,7 @@ REFERENCE_SPEC_VERSION = ref_spec_1153.version
 def test_basic_tload_transaction_begin(
     state_test: StateTestFiller,
     pre: Alloc,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -53,7 +54,7 @@ def test_basic_tload_transaction_begin(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=b"",
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 
@@ -64,6 +65,7 @@ def test_basic_tload_transaction_begin(
 def test_basic_tload_works(
     state_test: StateTestFiller,
     pre: Alloc,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -104,7 +106,7 @@ def test_basic_tload_works(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=b"",
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 
@@ -115,6 +117,7 @@ def test_basic_tload_works(
 def test_basic_tload_other_after_tstore(
     state_test: StateTestFiller,
     pre: Alloc,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -151,7 +154,7 @@ def test_basic_tload_other_after_tstore(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=b"",
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 
@@ -162,6 +165,7 @@ def test_basic_tload_other_after_tstore(
 def test_basic_tload_gasprice(
     state_test: StateTestFiller,
     pre: Alloc,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -228,7 +232,7 @@ def test_basic_tload_gasprice(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=b"",
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 
@@ -239,6 +243,7 @@ def test_basic_tload_gasprice(
 def test_basic_tload_after_store(
     state_test: StateTestFiller,
     pre: Alloc,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -272,7 +277,7 @@ def test_basic_tload_after_store(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=b"",
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 
