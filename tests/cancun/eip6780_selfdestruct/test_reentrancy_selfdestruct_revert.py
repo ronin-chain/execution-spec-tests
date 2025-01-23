@@ -24,6 +24,11 @@ pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mo
 
 
 @pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
+@pytest.fixture
 def env():  # noqa: D103
     return Environment(
         fee_recipient="0x2adc25665018aa1fe0e6bc666dac8fc2697ff9ba",
@@ -42,6 +47,7 @@ def test_reentrancy_selfdestruct_revert(
     fork: Fork,
     first_suicide: Op,
     second_suicide: Op,
+    tx_gas_limit: int,
     state_test: StateTestFiller,
 ):
     """
@@ -152,7 +158,7 @@ def test_reentrancy_selfdestruct_revert(
         gas_price=10,
         protected=False,
         data="",
-        gas_limit=500000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 

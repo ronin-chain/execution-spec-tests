@@ -26,12 +26,18 @@ REFERENCE_SPEC_GIT_PATH = ref_spec_1153.git_path
 REFERENCE_SPEC_VERSION = ref_spec_1153.version
 
 
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
 @pytest.mark.valid_from("Cancun")
 @pytest.mark.with_all_evm_code_types
 def test_tstore_clear_after_deployment_tx(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
     evm_code_type: EVMCodeType,
+    tx_gas_limit: int,
 ):
     """
     First creates a contract, which TSTOREs a value 1 in slot 1.
@@ -55,7 +61,7 @@ def test_tstore_clear_after_deployment_tx(
     sender = pre.fund_eoa()
 
     deployment_tx = Transaction(
-        gas_limit=100000,
+        gas_limit=tx_gas_limit,
         data=code,
         to=None,
         sender=sender,
@@ -63,7 +69,11 @@ def test_tstore_clear_after_deployment_tx(
 
     address = deployment_tx.created_contract
 
-    invoke_contract_tx = Transaction(gas_limit=100000, to=address, sender=sender)
+    invoke_contract_tx = Transaction(
+        gas_limit=tx_gas_limit,
+        to=address,
+        sender=sender,
+    )
 
     txs = [deployment_tx, invoke_contract_tx]
 
@@ -79,6 +89,7 @@ def test_tstore_clear_after_deployment_tx(
 def test_tstore_clear_after_tx(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
+    tx_gas_limit: int,
 ):
     """
     First SSTOREs the TLOAD value of key 1 in slot 1. Then, it TSTOREs 1 in slot 1.
@@ -93,12 +104,16 @@ def test_tstore_clear_after_tx(
     sender = pre.fund_eoa()
 
     poke_tstore_tx = Transaction(
-        gas_limit=100000,
+        gas_limit=tx_gas_limit,
         to=account,
         sender=sender,
     )
 
-    re_poke_tstore_tx = Transaction(gas_limit=100000, to=account, sender=sender)
+    re_poke_tstore_tx = Transaction(
+        gas_limit=tx_gas_limit,
+        to=account,
+        sender=sender,
+    )
 
     txs = [poke_tstore_tx, re_poke_tstore_tx]
 

@@ -110,7 +110,7 @@ def call_exact_cost(
 
 @pytest.fixture
 def block_gas_limit() -> int:  # noqa: D103
-    return 100_000_000
+    return 3_000_000
 
 
 @pytest.fixture

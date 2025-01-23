@@ -35,6 +35,11 @@ pytestmark = [pytest.mark.valid_from("Cancun")]
 CREATE_CODE = Op.CALLDATACOPY(size=Op.CALLDATASIZE) + Op.CREATE(size=Op.CALLDATASIZE)
 
 
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
 def call_option(option_number: int) -> Bytecode:
     """Return the bytecode for a call to the callee contract with the given option number."""
     return Op.MSTORE(value=option_number) + Op.CALL(
@@ -224,6 +229,7 @@ def test_reentrant_selfdestructing_call(
     caller_bytecode: Bytecode,
     callee_bytecode: Bytecode,
     expected_storage: Dict,
+    tx_gas_limit: int,
 ):
     """Test transient storage in different reentrancy contexts after selfdestructing."""
     env = Environment()
@@ -241,7 +247,7 @@ def test_reentrant_selfdestructing_call(
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=caller_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
         data=data,
     )
 

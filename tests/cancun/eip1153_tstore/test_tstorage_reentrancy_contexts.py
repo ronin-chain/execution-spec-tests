@@ -36,6 +36,11 @@ REENTRANT_CALL: Bytecode = Op.MSTORE(0, 2) + Op.SSTORE(
 )
 
 
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
 class DynamicReentrancyTestCases(EnumMeta):
     """
     Create dynamic transient storage test cases which REVERT or receive INVALID
@@ -277,7 +282,11 @@ class ReentrancyTestCases(PytestParameterEnum, metaclass=DynamicReentrancyTestCa
 
 @ReentrancyTestCases.parametrize()
 def test_reentrant_call(
-    state_test: StateTestFiller, pre: Alloc, bytecode: Bytecode, expected_storage: Dict
+    state_test: StateTestFiller,
+    pre: Alloc,
+    bytecode: Bytecode,
+    expected_storage: Dict,
+    tx_gas_limit: int,
 ):
     """Test transient storage in different reentrancy contexts."""
     env = Environment()
@@ -288,7 +297,7 @@ def test_reentrant_call(
         sender=pre.fund_eoa(),
         to=callee_address,
         data=Hash(1),
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
     post = {callee_address: Account(code=bytecode, storage=expected_storage)}

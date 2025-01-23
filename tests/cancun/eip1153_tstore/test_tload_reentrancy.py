@@ -33,6 +33,11 @@ class CallDestType(Enum):
     EXTERNAL_CALL = 2
 
 
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
 @pytest.mark.valid_from("Cancun")
 @pytest.mark.parametrize("call_type", [Op.CALL, Op.CALLCODE, Op.DELEGATECALL, Op.STATICCALL])
 @pytest.mark.parametrize("call_return", [Op.RETURN, Op.REVERT, Om.OOG])
@@ -43,6 +48,7 @@ def test_tload_reentrancy(
     call_type: Op,
     call_return: Op,
     call_dest_type: CallDestType,
+    tx_gas_limit: int,
 ):
     """
     Ported .json vectors.
@@ -152,7 +158,7 @@ def test_tload_reentrancy(
         sender=pre.fund_eoa(7_000_000_000_000_000_000),
         to=address_to,
         data=Hash(do_reenter),
-        gas_limit=5000000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 

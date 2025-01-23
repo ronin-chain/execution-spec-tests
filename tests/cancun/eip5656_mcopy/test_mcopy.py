@@ -111,14 +111,19 @@ def code_address(pre: Alloc, code_bytecode: Bytecode) -> Address:
 
 
 @pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
+@pytest.fixture
 def tx(  # noqa: D103
-    pre: Alloc, code_address: Address, dest: int, src: int, length: int
+    pre: Alloc, code_address: Address, dest: int, src: int, length: int, tx_gas_limit: int
 ) -> Transaction:
     return Transaction(
         sender=pre.fund_eoa(),
         to=code_address,
         data=Hash(dest) + Hash(src) + Hash(length),
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
 

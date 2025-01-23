@@ -31,7 +31,16 @@ pytestmark = [pytest.mark.valid_from("Cancun")]
 code_address = 0x100
 
 
-def test_transient_storage_unset_values(state_test: StateTestFiller, pre: Alloc):
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
+def test_transient_storage_unset_values(
+    state_test: StateTestFiller,
+    pre: Alloc,
+    tx_gas_limit: int,
+):
     """
     Test that tload returns zero for unset values. Loading an arbitrary value is
     0 at beginning of transaction: TLOAD(x) is 0.
@@ -51,7 +60,7 @@ def test_transient_storage_unset_values(state_test: StateTestFiller, pre: Alloc)
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=code_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
     post = {code_address: Account(storage={slot: 0 for slot in slots_under_test})}
@@ -64,7 +73,11 @@ def test_transient_storage_unset_values(state_test: StateTestFiller, pre: Alloc)
     )
 
 
-def test_tload_after_tstore(state_test: StateTestFiller, pre: Alloc):
+def test_tload_after_tstore(
+    state_test: StateTestFiller,
+    pre: Alloc,
+    tx_gas_limit: int,
+):
     """
     Loading after storing returns the stored value: TSTORE(x, y), TLOAD(x)
     returns y.
@@ -85,7 +98,7 @@ def test_tload_after_tstore(state_test: StateTestFiller, pre: Alloc):
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=code_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
     post = {code_address: Account(storage={slot: slot for slot in slots_under_test})}
@@ -98,7 +111,11 @@ def test_tload_after_tstore(state_test: StateTestFiller, pre: Alloc):
     )
 
 
-def test_tload_after_sstore(state_test: StateTestFiller, pre: Alloc):
+def test_tload_after_sstore(
+    state_test: StateTestFiller,
+    pre: Alloc,
+    tx_gas_limit: int,
+):
     """
     Loading after storing returns the stored value: TSTORE(x, y), TLOAD(x)
     returns y.
@@ -120,7 +137,7 @@ def test_tload_after_sstore(state_test: StateTestFiller, pre: Alloc):
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=code_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
     post = {
@@ -139,7 +156,11 @@ def test_tload_after_sstore(state_test: StateTestFiller, pre: Alloc):
     )
 
 
-def test_tload_after_tstore_is_zero(state_test: StateTestFiller, pre: Alloc):
+def test_tload_after_tstore_is_zero(
+    state_test: StateTestFiller,
+    pre: Alloc,
+    tx_gas_limit: int,
+):
     """
     Test that tload returns zero after tstore is called with zero.
 
@@ -222,6 +243,7 @@ def test_gas_usage(
     expected_gas: int,
     overhead_cost: int,
     extra_stack_items: int,
+    tx_gas_limit: int,
 ):
     """Test that tstore and tload consume the expected gas."""
     gas_measure_bytecode = CodeGasMeasure(
@@ -233,7 +255,7 @@ def test_gas_usage(
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=code_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
     post = {
         code_address: Account(code=gas_measure_bytecode, storage={0: expected_gas}),
@@ -268,6 +290,7 @@ def test_run_until_out_of_gas(
     pre: Alloc,
     repeat_bytecode: Bytecode,
     bytecode_repeat_times: int,
+    tx_gas_limit: int,
 ):
     """Use TSTORE over and over to different keys until we run out of gas."""
     bytecode = Op.JUMPDEST + repeat_bytecode * bytecode_repeat_times + Op.JUMP(Op.PUSH0)
@@ -275,7 +298,7 @@ def test_run_until_out_of_gas(
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=code_address,
-        gas_limit=30_000_000,
+        gas_limit=tx_gas_limit,
     )
     post = {
         code_address: Account(code=bytecode, storage={}),

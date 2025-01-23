@@ -68,14 +68,19 @@ def caller_address(pre: Alloc, caller_code: Bytecode, caller_pre_storage) -> Add
 
 
 @pytest.fixture
-def tx(pre: Alloc, caller_address: Address) -> Transaction:
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
+@pytest.fixture
+def tx(pre: Alloc, caller_address: Address, tx_gas_limit: int) -> Transaction:
     """
     Prepare test transaction, by setting the destination account, the
     transaction value, the transaction gas limit, and the transaction data.
     """
     return Transaction(
         sender=pre.fund_eoa(),
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
         to=caller_address,
     )
 

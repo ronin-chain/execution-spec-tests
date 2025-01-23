@@ -31,6 +31,11 @@ pytestmark = [pytest.mark.valid_from("Cancun")]
 PUSH_OPCODE_COST = 3
 
 
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
 class DynamicCallContextTestCases(EnumMeta):
     """
     Create dynamic transient storage test cases for contract sub-calls
@@ -304,12 +309,17 @@ def callee_address(pre: Alloc, callee_bytecode: Bytecode) -> Address:
 
 
 @pytest.fixture()
-def tx(pre: Alloc, caller_address: Address, callee_address: Address) -> Transaction:  # noqa: D103
+def tx(  # noqa: D103
+    pre: Alloc,
+    caller_address: Address,
+    callee_address: Address,
+    tx_gas_limit: int,
+) -> Transaction:
     return Transaction(
         sender=pre.fund_eoa(),
         to=caller_address,
         data=Hash(callee_address),
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
 
