@@ -126,6 +126,7 @@ def test_reentrancy_selfdestruct_revert(
     fork: Fork,
     first_suicide: Op,
     second_suicide: Op,
+    tx_gas_limit: int,
     state_test: StateTestFiller,
     selfdestruct_contract_bytecode: Bytecode,
     selfdestruct_contract_address: Address,
@@ -200,7 +201,7 @@ def test_reentrancy_selfdestruct_revert(
     tx = Transaction(
         sender=sender,
         to=executor_contract_address,
-        gas_limit=500_000,
+        gas_limit=tx_gas_limit,
         value=0,
     )
 

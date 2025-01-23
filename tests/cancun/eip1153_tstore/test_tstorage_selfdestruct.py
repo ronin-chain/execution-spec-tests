@@ -224,6 +224,7 @@ def test_reentrant_selfdestructing_call(
     caller_bytecode: Bytecode,
     callee_bytecode: Bytecode,
     expected_storage: Dict,
+    tx_gas_limit: int,
 ):
     """Test transient storage in different reentrancy contexts after selfdestructing."""
     env = Environment()
@@ -241,7 +242,7 @@ def test_reentrant_selfdestructing_call(
     tx = Transaction(
         sender=pre.fund_eoa(),
         to=caller_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
         data=data,
     )
 

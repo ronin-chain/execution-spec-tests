@@ -81,10 +81,11 @@ def test_push0_contracts(
     sender: EOA,
     contract_code: Bytecode,
     expected_storage: Account,
+    tx_gas_limit: int,
 ):
     """Tests PUSH0 within various deployed contracts."""
     push0_contract = pre.deploy_contract(contract_code)
-    tx = Transaction(to=push0_contract, gas_limit=100_000, sender=sender)
+    tx = Transaction(to=push0_contract, gas_limit=tx_gas_limit, sender=sender)
     post[push0_contract] = expected_storage
     state_test(env=env, pre=pre, post=post, tx=tx)
 
@@ -138,8 +139,9 @@ class TestPush0CallContext:
         post: Alloc,
         sender: EOA,
         push0_contract_caller: Address,
+        tx_gas_limit: int,
     ):
         """Test PUSH0 during various call contexts."""
-        tx = Transaction(to=push0_contract_caller, gas_limit=100_000, sender=sender)
+        tx = Transaction(to=push0_contract_caller, gas_limit=tx_gas_limit, sender=sender)
         post[push0_contract_caller] = Account(storage={0x00: 0x01, 0x01: 0xFF})
         state_test(env=env, pre=pre, post=post, tx=tx)

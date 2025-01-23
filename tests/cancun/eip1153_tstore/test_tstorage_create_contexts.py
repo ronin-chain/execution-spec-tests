@@ -194,6 +194,7 @@ class TestTransientStorageInContractCreation:
         deploy_code: Bytecode,
         expected_creator_storage: dict,
         expected_storage: dict,
+        tx_gas_limit: int,
     ) -> None:
         """Test transient storage in contract creation contexts."""
         sender = pre.fund_eoa()
@@ -202,7 +203,7 @@ class TestTransientStorageInContractCreation:
             sender=sender,
             to=creator_address,
             data=initcode,
-            gas_limit=1_000_000,
+            gas_limit=tx_gas_limit,
         )
 
         post = {

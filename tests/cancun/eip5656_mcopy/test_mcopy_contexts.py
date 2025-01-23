@@ -136,11 +136,16 @@ def callee_address(pre: Alloc, callee_bytecode) -> Address:  # noqa: D103
 
 
 @pytest.fixture
-def tx(pre: Alloc, caller_address: Address) -> Transaction:  # noqa: D103
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000
+
+
+@pytest.fixture
+def tx(pre: Alloc, caller_address: Address, tx_gas_limit: int) -> Transaction:  # noqa: D103
     return Transaction(
         sender=pre.fund_eoa(),
         to=caller_address,
-        gas_limit=1_000_000,
+        gas_limit=tx_gas_limit,
     )
 
 

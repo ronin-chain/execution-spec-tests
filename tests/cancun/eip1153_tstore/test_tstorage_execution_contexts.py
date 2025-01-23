@@ -304,12 +304,17 @@ def callee_address(pre: Alloc, callee_bytecode: Bytecode) -> Address:
 
 
 @pytest.fixture()
-def tx(pre: Alloc, caller_address: Address, callee_address: Address) -> Transaction:  # noqa: D103
+def tx(  # noqa: D103
+    pre: Alloc,
+    caller_address: Address,
+    callee_address: Address,
+    tx_gas_limit: int,
+) -> Transaction:
     return Transaction(
         sender=pre.fund_eoa(),
         to=caller_address,
-        data=Hash(callee_address, left_padding=True),
-        gas_limit=1_000_000,
+        data=Hash(callee_address),
+        gas_limit=tx_gas_limit,
     )
 
 

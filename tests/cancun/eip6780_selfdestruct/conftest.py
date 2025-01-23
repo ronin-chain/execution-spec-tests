@@ -21,3 +21,8 @@ def env() -> Environment:
 def selfdestruct_recipient_address(pre: Alloc) -> Address:
     """Address that can receive a SELFDESTRUCT operation."""
     return pre.fund_eoa(amount=0)
+
+
+@pytest.fixture
+def tx_gas_limit() -> int:  # noqa: D103
+    return 3_000_000

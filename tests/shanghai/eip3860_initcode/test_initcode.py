@@ -134,6 +134,7 @@ def test_contract_creating_tx(
     post: Alloc,
     sender: EOA,
     initcode: Initcode,
+    tx_gas_limit: int,
 ):
     """
     Tests creating a contract using a transaction with an initcode that is
@@ -148,7 +149,7 @@ def test_contract_creating_tx(
         nonce=0,
         to=None,
         data=initcode,
-        gas_limit=10000000,
+        gas_limit=tx_gas_limit,
         sender=sender,
     )
 
@@ -426,13 +427,19 @@ class TestCreateInitcode:
         return pre.deploy_contract(caller_code)
 
     @pytest.fixture
-    def tx(self, caller_contract_address: Address, initcode: Initcode, sender: EOA) -> Transaction:
+    def tx(
+        self,
+        caller_contract_address: Address,
+        initcode: Initcode,
+        sender: EOA,
+        tx_gas_limit: int,
+    ) -> Transaction:
         """Generate transaction that executes the caller contract."""
         return Transaction(
             nonce=0,
             to=caller_contract_address,
             data=initcode,
-            gas_limit=10000000,
+            gas_limit=tx_gas_limit,
             sender=sender,
         )
 
