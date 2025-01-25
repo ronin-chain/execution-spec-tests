@@ -2,7 +2,7 @@
 
 import pytest
 
-from ethereum_test_tools import Alloc, Environment, EOA
+from ethereum_test_tools import EOA, Alloc, Environment
 
 
 @pytest.fixture
