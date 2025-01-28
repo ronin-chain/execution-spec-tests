@@ -24,7 +24,7 @@ from ethereum_test_base_types.conversions import (
     FixedSizeBytesConvertible,
     NumberConvertible,
 )
-from ethereum_test_types import EOA
+from ethereum_test_types import EOA, Transaction
 from ethereum_test_types import Alloc as BaseAlloc
 from ethereum_test_types.eof.v1 import Container
 from ethereum_test_vm import Bytecode, EVMCodeType, Opcodes
@@ -249,6 +249,10 @@ class Alloc(BaseAlloc):
                 account.balance = ZeroPaddedHexNumber(current_balance + Number(amount))
                 return
         super().__setitem__(address, Account(balance=amount))
+
+    def send_wait_transaction(self, tx: Transaction):
+        """Send a transaction and wait for it to be mined."""
+        raise NotImplementedError("send_wait_transaction is not implemented in filler pre-alloc")
 
 
 @pytest.fixture(scope="session")
