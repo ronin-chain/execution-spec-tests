@@ -290,6 +290,10 @@ class Alloc(BaseAlloc):
         """
         raise NotImplementedError("fund_address is not implemented in the base class")
 
+    def send_wait_transaction(self, transaction: "Transaction"):
+        """Send a transaction and wait for it to be included in a block."""
+        raise NotImplementedError("send_transaction_and_wait is not implemented in the base class")
+
 
 class WithdrawalGeneric(CamelModel, Generic[NumberBoundTypeVar]):
     """Withdrawal generic type, used as a parent class for `Withdrawal` and `FixtureWithdrawal`."""

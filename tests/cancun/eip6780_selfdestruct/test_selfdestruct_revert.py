@@ -1,20 +1,20 @@
 """tests for selfdestruct interaction with revert."""
 
-from itertools import count
 from typing import Dict
 
 import pytest
 
 from ethereum_test_forks import Cancun
 from ethereum_test_tools import (
+    EOA,
     Account,
     Address,
+    Alloc,
     Bytecode,
     Environment,
     Initcode,
     StateTestFiller,
     Storage,
-    TestAddress,
     Transaction,
     YulCompiler,
     compute_create_address,
@@ -26,33 +26,11 @@ REFERENCE_SPEC_VERSION = "2f8299df31bb8173618901a03a8366a3183479b0"
 
 SELFDESTRUCT_ENABLE_FORK = Cancun
 
-pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mode")
-
 
 @pytest.fixture
-def entry_code_address() -> Address:
+def entry_code_address(sender: EOA) -> Address:
     """Address where the entry code will run."""
-    return compute_create_address(address=TestAddress, nonce=0)
-
-
-@pytest.fixture
-def recursive_revert_contract_address() -> Address:
-    """Address where the recursive revert contract address exists."""
-    return Address(0xDEADBEEF)
-
-
-@pytest.fixture
-def env() -> Environment:
-    """Environment for all tests."""
-    return Environment(
-        fee_recipient="0x2adc25665018aa1fe0e6bc666dac8fc2697ff9ba",
-    )
-
-
-@pytest.fixture
-def selfdestruct_recipient_address() -> Address:
-    """List of possible addresses that can receive a SELFDESTRUCT operation."""
-    return Address(0x1234)
+    return compute_create_address(address=sender, nonce=0)
 
 
 @pytest.fixture
@@ -61,11 +39,9 @@ def selfdestruct_on_outer_call() -> int:
     return 0
 
 
-@pytest.fixture
-def recursive_revert_contract_code(
+def generate_recursive_revert_contract_bytecode(
     yul: YulCompiler,
     selfdestruct_on_outer_call: int,
-    selfdestruct_with_transfer_contract_code: Bytecode,
     selfdestruct_with_transfer_contract_address: Address,
 ) -> Bytecode:
     """
@@ -130,13 +106,7 @@ def recursive_revert_contract_code(
 
 
 @pytest.fixture
-def selfdestruct_with_transfer_contract_address(entry_code_address: Address) -> Address:
-    """Contract address for contract that can selfdestruct and receive value."""
-    return compute_create_address(address=entry_code_address, nonce=1)
-
-
-@pytest.fixture
-def selfdestruct_with_transfer_contract_code(
+def selfdestruct_with_transfer_contract_bytecode(
     yul: YulCompiler, selfdestruct_recipient_address: Address
 ) -> Bytecode:
     """Contract that can selfdestruct and receive value."""
@@ -168,35 +138,19 @@ def selfdestruct_with_transfer_contract_code(
 
 @pytest.fixture
 def selfdestruct_with_transfer_contract_initcode(
-    selfdestruct_with_transfer_contract_code: Bytecode,
+    selfdestruct_with_transfer_contract_bytecode: Bytecode,
 ) -> Bytecode:
-    """Initcode for selfdestruct_with_transfer_contract_code."""
-    return Initcode(deploy_code=selfdestruct_with_transfer_contract_code)
+    """Initcode for selfdestruct_with_transfer_contract_bytecode."""
+    return Initcode(deploy_code=selfdestruct_with_transfer_contract_bytecode)
 
 
 @pytest.fixture
-def selfdestruct_with_transfer_initcode_copy_from_address() -> Address:
-    """Address of a pre-existing contract we use to simply copy initcode from."""
-    return Address(0xABCD)
-
-
-@pytest.fixture
-def pre(
-    recursive_revert_contract_address: Address,
-    recursive_revert_contract_code: Bytecode,
-    selfdestruct_with_transfer_initcode_copy_from_address: Address,
+def selfdestruct_with_transfer_initcode_copy_from_address(
+    pre: Alloc,
     selfdestruct_with_transfer_contract_initcode: Bytecode,
-    selfdestruct_with_transfer_contract_address: Address,
-    yul: YulCompiler,
-) -> Dict[Address, Account]:
-    """Prestate for test_selfdestruct_not_created_in_same_tx_with_revert."""
-    return {
-        TestAddress: Account(balance=100_000_000_000_000_000_000),
-        selfdestruct_with_transfer_initcode_copy_from_address: Account(
-            code=selfdestruct_with_transfer_contract_initcode
-        ),
-        recursive_revert_contract_address: Account(code=recursive_revert_contract_code, balance=3),
-    }
+) -> Address:
+    """Address of a pre-existing contract we use to simply copy initcode from."""
+    return pre.deploy_contract(selfdestruct_with_transfer_contract_initcode)
 
 
 @pytest.mark.parametrize(
@@ -211,18 +165,17 @@ def pre(
 @pytest.mark.valid_from("Cancun")
 def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
     state_test: StateTestFiller,
+    sender: EOA,
     env: Environment,
-    pre: Dict[Address, Account],
+    pre: Alloc,
     entry_code_address: Address,
     selfdestruct_on_outer_call: int,
-    selfdestruct_with_transfer_contract_code: Bytecode,
+    selfdestruct_with_transfer_contract_bytecode: Bytecode,
     selfdestruct_with_transfer_contract_initcode: Bytecode,
-    selfdestruct_with_transfer_contract_address: Address,
     selfdestruct_recipient_address: Address,
     selfdestruct_with_transfer_initcode_copy_from_address: Address,
-    recursive_revert_contract_address: Address,
-    recursive_revert_contract_code: Bytecode,
     tx_gas_limit: int,
+    yul: YulCompiler,
 ):
     """
     Given:
@@ -231,6 +184,18 @@ def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
          Transfer value to A and call A.selfdestruct.
          Recurse into a new call from transfers value to A, calls A.selfdestruct, and reverts.
     """  # noqa: E501
+    selfdestruct_with_transfer_contract_address = compute_create_address(
+        address=entry_code_address, nonce=1
+    )
+
+    recursive_revert_contract_bytecode = generate_recursive_revert_contract_bytecode(
+        yul, selfdestruct_on_outer_call, selfdestruct_with_transfer_contract_address
+    )
+    recursive_revert_contract_address = pre.deploy_contract(
+        recursive_revert_contract_bytecode,
+        balance=3,
+    )
+
     entry_code = Op.EXTCODECOPY(
         selfdestruct_with_transfer_initcode_copy_from_address,
         0,
@@ -270,7 +235,7 @@ def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
             code=selfdestruct_with_transfer_contract_initcode,
         ),
         recursive_revert_contract_address: Account(
-            code=recursive_revert_contract_code,
+            code=recursive_revert_contract_bytecode,
             storage=Storage({1: 1}),  # type: ignore
         ),
     }
@@ -283,7 +248,7 @@ def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
     else:
         post[selfdestruct_with_transfer_contract_address] = Account(
             balance=1,
-            code=selfdestruct_with_transfer_contract_code,
+            code=selfdestruct_with_transfer_contract_bytecode,
             storage=Storage(
                 {
                     # 2 value transfers (1 in outer call, 1 in reverted inner call)
@@ -295,39 +260,15 @@ def test_selfdestruct_created_in_same_tx_with_revert(  # noqa SC200
         )
         post[selfdestruct_recipient_address] = Account.NONEXISTENT  # type: ignore
 
-    nonce = count()
     tx = Transaction(
-        ty=0x0,
         value=0,
         data=entry_code,
-        chain_id=0x0,
-        nonce=next(nonce),
+        sender=sender,
         to=None,
         gas_limit=tx_gas_limit,
-        gas_price=10,
-        protected=False,
     )
 
     state_test(env=env, pre=pre, post=post, tx=tx)
-
-
-@pytest.fixture
-def pre_with_selfdestructable(  # noqa: SC200
-    recursive_revert_contract_address: Address,
-    recursive_revert_contract_code: Bytecode,
-    selfdestruct_with_transfer_initcode_copy_from_address: Address,
-    selfdestruct_with_transfer_contract_initcode: Bytecode,
-    selfdestruct_with_transfer_contract_address: Address,
-    yul: YulCompiler,
-) -> Dict[Address, Account]:
-    """Preset for selfdestruct_not_created_in_same_tx_with_revert."""
-    return {
-        TestAddress: Account(balance=100_000_000_000_000_000_000),
-        selfdestruct_with_transfer_initcode_copy_from_address: Account(
-            code=selfdestruct_with_transfer_contract_initcode
-        ),
-        recursive_revert_contract_address: Account(code=recursive_revert_contract_code, balance=2),
-    }
 
 
 @pytest.mark.parametrize(
@@ -342,20 +283,32 @@ def pre_with_selfdestructable(  # noqa: SC200
 @pytest.mark.valid_from("Cancun")
 def test_selfdestruct_not_created_in_same_tx_with_revert(
     state_test: StateTestFiller,
+    sender: EOA,
     env: Environment,
     entry_code_address: Address,
+    pre: Alloc,
     selfdestruct_on_outer_call: int,
-    selfdestruct_with_transfer_contract_code: Bytecode,
-    selfdestruct_with_transfer_contract_address: Address,
+    selfdestruct_with_transfer_contract_bytecode: Bytecode,
     selfdestruct_recipient_address: Address,
-    recursive_revert_contract_address: Address,
-    recursive_revert_contract_code: Bytecode,
     tx_gas_limit: int,
+    yul: YulCompiler,
 ):
     """
     Same test as selfdestruct_created_in_same_tx_with_revert except selfdestructable contract
     is pre-existing.
     """
+    selfdestruct_with_transfer_contract_address = pre.deploy_contract(
+        selfdestruct_with_transfer_contract_bytecode
+    )
+
+    recursive_revert_contract_bytecode = generate_recursive_revert_contract_bytecode(
+        yul, selfdestruct_on_outer_call, selfdestruct_with_transfer_contract_address
+    )
+    recursive_revert_contract_address = pre.deploy_contract(
+        recursive_revert_contract_bytecode,
+        balance=2,
+    )
+
     entry_code = Op.CALL(
         Op.GASLIMIT(),
         recursive_revert_contract_address,
@@ -366,16 +319,6 @@ def test_selfdestruct_not_created_in_same_tx_with_revert(
         0,  # ret length
     )
 
-    pre: Dict[Address, Account] = {
-        TestAddress: Account(balance=100_000_000_000_000_000_000),
-        selfdestruct_with_transfer_contract_address: Account(
-            code=selfdestruct_with_transfer_contract_code
-        ),
-        recursive_revert_contract_address: Account(
-            code=bytes(recursive_revert_contract_code), balance=2
-        ),
-    }
-
     post: Dict[Address, Account] = {
         entry_code_address: Account(code="0x"),
     }
@@ -383,7 +326,7 @@ def test_selfdestruct_not_created_in_same_tx_with_revert(
     if selfdestruct_on_outer_call > 0:
         post[selfdestruct_with_transfer_contract_address] = Account(
             balance=1 if selfdestruct_on_outer_call == 1 else 0,
-            code=selfdestruct_with_transfer_contract_code,
+            code=selfdestruct_with_transfer_contract_bytecode,
             storage=Storage(
                 {
                     # 2 value transfers: 1 in outer call, 1 in reverted inner call
@@ -399,7 +342,7 @@ def test_selfdestruct_not_created_in_same_tx_with_revert(
     else:
         post[selfdestruct_with_transfer_contract_address] = Account(
             balance=1,
-            code=selfdestruct_with_transfer_contract_code,
+            code=selfdestruct_with_transfer_contract_bytecode,
             storage=Storage(
                 {
                     # 2 value transfers: 1 in outer call, 1 in reverted inner call
@@ -411,17 +354,12 @@ def test_selfdestruct_not_created_in_same_tx_with_revert(
         )
         post[selfdestruct_recipient_address] = Account.NONEXISTENT  # type: ignore
 
-    nonce = count()
     tx = Transaction(
-        ty=0x0,
+        sender=sender,
         value=0,
         data=entry_code,
-        chain_id=0x0,
-        nonce=next(nonce),
         to=None,
         gas_limit=tx_gas_limit,
-        gas_price=10,
-        protected=False,
     )
 
     state_test(env=env, pre=pre, post=post, tx=tx)
