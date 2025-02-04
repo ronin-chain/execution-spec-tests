@@ -23,7 +23,13 @@ from ethereum_test_tools.vm.opcode import Opcodes as Op
 REFERENCE_SPEC_GIT_PATH = "EIPS/eip-6780.md"
 REFERENCE_SPEC_VERSION = "2f8299df31bb8173618901a03a8366a3183479b0"
 
-pytestmark = pytest.mark.skip(reason="Not implemented yet to adapt to execute mode")
+
+def construct_call_op(call_type: Op, money: int, address: Address):
+    """Call op based on call_type."""
+    if call_type in [Op.CALLCODE, Op.CALL]:
+        return call_type(Op.GAS, address, money, 0, 0, 0, 0)
+    else:
+        return call_type(Op.GAS, address, money, 0, 0, 0)
 
 
 @pytest.fixture
@@ -125,7 +131,6 @@ def test_reentrancy_selfdestruct_revert(
     sender: EOA,
     fork: Fork,
     first_suicide: Op,
-    second_suicide: Op,
     tx_gas_limit: int,
     state_test: StateTestFiller,
     selfdestruct_contract_bytecode: Bytecode,

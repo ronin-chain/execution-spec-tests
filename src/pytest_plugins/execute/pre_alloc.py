@@ -348,6 +348,10 @@ class Alloc(BaseAlloc):
         """Wait for all transactions to be included in blocks."""
         return self._eth_rpc.wait_for_transactions(self._txs)
 
+    def send_wait_transaction(self, tx: Transaction):
+        """Send a transaction and wait for it to be included in a block."""
+        self._eth_rpc.send_wait_transaction(tx.with_signature_and_sender())
+
 
 @pytest.fixture(autouse=True)
 def evm_code_type(request: pytest.FixtureRequest) -> EVMCodeType:
