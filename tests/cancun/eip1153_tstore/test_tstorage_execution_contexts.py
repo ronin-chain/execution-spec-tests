@@ -313,7 +313,7 @@ def tx(  # noqa: D103
     return Transaction(
         sender=pre.fund_eoa(),
         to=caller_address,
-        data=Hash(callee_address),
+        data=Hash(callee_address, left_padding=True),
         gas_limit=tx_gas_limit,
     )
 
