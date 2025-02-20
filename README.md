@@ -104,14 +104,6 @@ uv sync --all-extras
 uv run solc-select use 0.8.24 --always-install
 ```
 
-Python bindings to support blob transaction:
-
-```console
-git submodule update --init --recursive
-uv build -o c-kzg-4844/bindings/python/dist c-kzg-4844
-uv pip install c-kzg-4844/bindings/python/dist/*.whl --force-reinstall
-```
-
 See [Installation Troubleshooting](https://ethereum.github.io/execution-spec-tests/main/getting_started/installation_troubleshooting/) in the online docs if you encounter issues.
 
 ### Exploring and Filling Test Cases
