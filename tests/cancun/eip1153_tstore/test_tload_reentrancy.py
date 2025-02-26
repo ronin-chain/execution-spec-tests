@@ -83,7 +83,7 @@ def test_tload_reentrancy(
         call_dest_address = address_code
 
     address_to = pre.deploy_contract(
-        balance=1_000_000_000_000_000_000,
+        balance=1_000_000,
         code=Switch(
             cases=[
                 Case(
@@ -150,7 +150,7 @@ def test_tload_reentrancy(
         }
 
     tx = Transaction(
-        sender=pre.fund_eoa(7_000_000_000_000_000_000),
+        sender=pre.fund_eoa(),
         to=address_to,
         data=Hash(do_reenter),
         gas_limit=tx_gas_limit,
