@@ -34,7 +34,7 @@ def pytest_addoption(parser):
         action="store",
         dest="sender_funding_transactions_gas_price",
         type=Wei,
-        default=10**9,
+        default=25 * 10**9,
         help=("Gas price set for the funding transactions of each worker's sender key."),
     )
 

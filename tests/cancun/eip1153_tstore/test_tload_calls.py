@@ -81,7 +81,7 @@ def test_tload_calls(state_test: StateTestFiller, pre: Alloc, call_type: Op, tx_
     }
 
     tx = Transaction(
-        sender=pre.fund_eoa(7_000_000_000_000_000_000),
+        sender=pre.fund_eoa(),
         to=address_to,
         data=b"",
         gas_limit=tx_gas_limit,

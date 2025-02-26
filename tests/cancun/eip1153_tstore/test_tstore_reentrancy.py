@@ -204,7 +204,7 @@ def test_tstore_reentrancy(
         }
 
     tx = Transaction(
-        sender=pre.fund_eoa(7_000_000_000_000_000_000),
+        sender=pre.fund_eoa(),
         to=address_to,
         data=Hash(do_reenter),
         gas_limit=tx_gas_limit,
