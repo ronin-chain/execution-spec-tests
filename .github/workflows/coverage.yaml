@@ -26,7 +26,7 @@ jobs:
 
       - name: Get all changed python files in tests/ and changes to coverted-ethereum-tests.txt
         id: changed-tests
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32
         with:
           # TODO: non-test modules such as __init__.py or spec.py could effect coverage - in this case we should
           # fill all applicable tests (i.e., all the test_*.py files in or under the changed module's directory)
