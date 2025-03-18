@@ -121,7 +121,7 @@ class EOA(Address):
 class Alloc(BaseAlloc):
     """Allocation of accounts in the state, pre and post test execution."""
 
-    _eoa_fund_amount_default: int = PrivateAttr(10**21)
+    _eoa_fund_amount_default: int = PrivateAttr(10**17)
 
     @dataclass(kw_only=True)
     class UnexpectedAccountError(Exception):
