@@ -39,7 +39,6 @@ from ethereum_test_tools import Macros as Om
 from ethereum_test_tools import Opcodes as Op
 from ethereum_test_tools.eof.v1 import Container, Section
 
-from ...cancun.eip4844_blobs.spec import Spec as Spec4844
 from ..eip6110_deposits.helpers import DepositRequest
 from ..eip7002_el_triggerable_withdrawals.helpers import WithdrawalRequest
 from ..eip7251_consolidations.helpers import ConsolidationRequest
@@ -2825,7 +2824,7 @@ def test_eoa_tx_after_set_code(
                     max_fee_per_blob_gas=fork.min_base_fee_per_blob_gas() * 10,
                     blob_versioned_hashes=add_kzg_version(
                         [Hash(1)],
-                        Spec4844.BLOB_COMMITMENT_VERSION_KZG,
+                        1,
                     ),
                 ),
             )
