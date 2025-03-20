@@ -20,8 +20,8 @@ from ethereum_test_tools import (
 )
 from ethereum_test_tools import Opcodes as Op
 
-from ...cancun.eip4844_blobs.spec import Spec as EIP_4844_Spec
 from .helpers import DataTestType, find_floor_cost_threshold
+from .spec import Spec
 
 
 @pytest.fixture
@@ -101,7 +101,7 @@ def blob_versioned_hashes(ty: int) -> Sequence[Hash] | None:
     return (
         add_kzg_version(
             [Hash(1)],
-            EIP_4844_Spec.BLOB_COMMITMENT_VERSION_KZG,
+            1,
         )
         if ty == 3
         else None
@@ -321,7 +321,7 @@ def tx(
     tx_error: TransactionException | None,
 ) -> Transaction:
     """Create the transaction used in each test."""
-    return Transaction(
+    tx = Transaction(
         ty=ty,
         sender=sender,
         data=tx_data,
@@ -333,3 +333,12 @@ def tx(
         blob_versioned_hashes=blob_versioned_hashes,
         error=tx_error,
     )
+
+    if tx.ty == 3:
+        tx.blobs = [bytes(4096 * 32)]
+        tx.blob_kzg_commitments = [Spec.INF_POINT]
+        tx.blob_kzg_proofs = [Spec.INF_POINT]
+        tx.blob_versioned_hashes = [Spec.kzg_to_versioned_hash(Spec.INF_POINT)]
+        tx.wrapped_blob_transaction = True
+
+    return tx

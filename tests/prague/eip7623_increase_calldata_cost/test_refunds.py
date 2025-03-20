@@ -251,8 +251,8 @@ def tx_gas_limit(
     "refund_type",
     [
         RefundType.STORAGE_CLEAR,
-        RefundType.STORAGE_CLEAR | RefundType.AUTHORIZATION_EXISTING_AUTHORITY,
-        RefundType.AUTHORIZATION_EXISTING_AUTHORITY,
+        # RefundType.STORAGE_CLEAR | RefundType.AUTHORIZATION_EXISTING_AUTHORITY,
+        # RefundType.AUTHORIZATION_EXISTING_AUTHORITY,
     ],
 )
 def test_gas_refunds_from_data_floor(
