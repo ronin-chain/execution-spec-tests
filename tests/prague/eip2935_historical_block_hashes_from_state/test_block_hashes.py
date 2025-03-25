@@ -75,6 +75,64 @@ def generate_block_check_code(
 
 
 @pytest.mark.parametrize(
+    "blob_count,check_contract_first",
+    [
+        pytest.param(32, False, id="check_blockhash_first"),
+        pytest.param(32, True, id="check_contract_first"),
+    ],
+)
+@pytest.mark.valid_from("Prague")
+def test_block_hashes_history_sequence(
+    blockchain_test: BlockchainTestFiller,
+    pre: Alloc,
+    blob_count: int,
+    check_contract_first: bool,
+):
+    """
+    Tests that block hashes are stored correctly at the system contract address after the fork
+    transition. Block hashes are stored incrementally at the transition until the
+    `HISTORY_SERVE_WINDOW` ring buffer is full. Afterwards the oldest block hash is replaced by the
+    new one.
+    """
+    blocks: List[Block] = []
+
+    sender = pre.fund_eoa()
+    post: Dict[Address, Account] = {}
+
+    txs = []
+    # On these blocks, `BLOCKHASH` will still return values for the last 256 blocks, and
+    # `HISTORY_STORAGE_ADDRESS` should now serve values for the previous blocks in the new
+    # fork.
+    code = Bytecode()
+    storage = Storage()
+
+    for i in range(blob_count):
+        code += generate_block_check_code(
+            sub_block_number=i + 1,
+            storage=storage,
+            check_contract_first=check_contract_first,
+        )
+
+    check_blocks_after_fork_address = pre.deploy_contract(code)
+    txs.append(
+        Transaction(
+            to=check_blocks_after_fork_address,
+            gas_limit=1_000_000,
+            sender=sender,
+        )
+    )
+    post[check_blocks_after_fork_address] = Account(storage=storage)
+
+    blocks.append(Block(txs=txs))
+
+    blockchain_test(
+        pre=pre,
+        blocks=blocks,
+        post=post,
+    )
+
+
+@pytest.mark.parametrize(
     "check_contract_first",
     [
         pytest.param(False, id="check_blockhash_first"),
