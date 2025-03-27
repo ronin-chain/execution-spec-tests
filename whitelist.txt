@@ -211,6 +211,7 @@ GHSA
 git's
 github
 Github
+Github's
 glightbox
 globals
 go-ethereum's
@@ -301,6 +302,7 @@ nav
 ncheck
 nektos
 nethermind
+Nethermind's
 nexternal
 nGo
 nJSON
@@ -373,6 +375,7 @@ reentrant
 repo
 repo's
 repos
+returncode
 returncontract
 returndata
 returndatacopy
@@ -396,6 +399,7 @@ sha
 SHA
 sharding
 SignerType
+simlimit
 solc
 soliditylang
 Spec4844
@@ -540,6 +544,8 @@ makereport
 metafunc
 modifyitems
 monkeypatching
+neth
+nethtest
 nodeid
 noop
 oog
@@ -585,6 +591,7 @@ tryfirst
 trylast
 usefixtures
 verifier
+verifiers
 writelines
 xfail
 ZeroPaddedHexNumber
@@ -750,6 +757,7 @@ callcode
 return
 delegatecall
 eofcreate
+eoftest
 extcall
 extcalls
 extdelegatecall
@@ -835,3 +843,19 @@ EF
 F6
 FC
 ef01
+uv
+EthereumCLI
+TransitionTool
+rebase
+deps
+datatables
+jinja
+templating
+EOFv
+subcontainers
+ize
+nectos
+fibonacci
+CPython
+legacytests
+pycryptodome

@@ -185,7 +185,7 @@ def test_eofcreate_deploy_sizes(
         name="Initcode Subcontainer",
         sections=[
             Section.Code(
-                code=Op.RETURNCONTRACT[0](0, 0),
+                code=Op.RETURNCODE[0](0, 0),
             ),
             Section.Container(container=runtime_container),
         ],
@@ -281,8 +281,7 @@ def test_auxdata_size_failures(state_test: StateTestFiller, pre: Alloc, auxdata_
         name="Initcode Subcontainer",
         sections=[
             Section.Code(
-                code=Op.CALLDATACOPY(0, 0, Op.CALLDATASIZE)
-                + Op.RETURNCONTRACT[0](0, Op.CALLDATASIZE),
+                code=Op.CALLDATACOPY(0, 0, Op.CALLDATASIZE) + Op.RETURNCODE[0](0, Op.CALLDATASIZE),
             ),
             Section.Container(container=smallest_runtime_subcontainer),
         ],
@@ -397,7 +396,7 @@ def test_insufficient_initcode_gas(
         name="Large Initcode Subcontainer",
         sections=[
             Section.Code(
-                code=Op.RETURNCONTRACT[0](0, 0),
+                code=Op.RETURNCODE[0](0, 0),
             ),
             Section.Container(container=smallest_runtime_subcontainer),
             Section.Data(data=initcode_data),
@@ -503,11 +502,11 @@ def test_insufficient_gas_memory_expansion(
     state_test(env=env, pre=pre, post=post, tx=tx)
 
 
-def test_insufficient_returncontract_auxdata_gas(
+def test_insufficient_returncode_auxdata_gas(
     state_test: StateTestFiller,
     pre: Alloc,
 ):
-    """Exercises a RETURNCONTRACT when there is not enough gas for the initcode charge."""
+    """Exercises a RETURNCODE when there is not enough gas for the initcode charge."""
     env = Environment()
 
     auxdata_size = 0x5000
@@ -515,7 +514,7 @@ def test_insufficient_returncontract_auxdata_gas(
         name="Large Initcode Subcontainer",
         sections=[
             Section.Code(
-                code=Op.RETURNCONTRACT[0](0, auxdata_size),
+                code=Op.RETURNCODE[0](0, auxdata_size),
             ),
             Section.Container(container=smallest_runtime_subcontainer),
         ],
@@ -755,3 +754,63 @@ def test_eof_eofcreate_msg_depth(
         post=post,
         tx=tx,
     )
+
+
+def test_reentrant_eofcreate(
+    state_test: StateTestFiller,
+    pre: Alloc,
+):
+    """Verifies a reentrant EOFCREATE case, where EIP-161 prevents conflict via nonce bump."""
+    env = Environment()
+    # Calls into the factory contract with 1 as input.
+    reenter_code = Op.MSTORE(0, 1) + Op.EXTCALL(address=Op.CALLDATALOAD(32), args_size=32)
+    # Initcode: if given 0 as 1st word of input will call into the factory again.
+    #           2nd word of input is the address of the factory.
+    initcontainer = Container(
+        sections=[
+            Section.Code(
+                Op.CALLDATALOAD(0)
+                + Op.RJUMPI[len(reenter_code)]
+                + reenter_code
+                + Op.RETURNCODE[0](0, 0)
+            ),
+            Section.Container(smallest_runtime_subcontainer),
+        ]
+    )
+    # Factory: Passes on its input into the initcode. It's 0 first time, 1 the second time.
+    #          Saves the result of deployment in slot 0 first time, 1 the second time.
+    contract_address = pre.deploy_contract(
+        code=Container(
+            sections=[
+                Section.Code(
+                    Op.CALLDATACOPY(0, 0, 32)
+                    + Op.MSTORE(32, Op.ADDRESS)
+                    # 1st word - copied from input (reenter flag), 2nd word - `this.address`.
+                    + Op.SSTORE(Op.CALLDATALOAD(0), Op.EOFCREATE[0](input_size=64))
+                    + Op.STOP,
+                ),
+                Section.Container(initcontainer),
+            ],
+        ),
+        storage={0: 0xB17D, 1: 0xB17D},  # a canary to be overwritten
+    )
+    # Flow is: reenter flag 0 -> factory -> reenter flag 0 -> initcode -> reenter ->
+    #          reenter flag 1 -> factory -> reenter flag 1 -> (!) initcode -> stop,
+    # if the EIP-161 nonce bump is not implemented. If it is, it fails before second
+    # inicode marked (!).
+    # Storage in 0 should have the address from the outer EOFCREATE.
+    # Storage in 1 should have 0 from the inner EOFCREATE.
+    post = {
+        contract_address: Account(
+            storage={
+                0: compute_eofcreate_address(contract_address, 0, initcontainer),
+                1: 0,
+            }
+        )
+    }
+    tx = Transaction(
+        to=contract_address,
+        gas_limit=500_000,
+        sender=pre.fund_eoa(),
+    )
+    state_test(env=env, pre=pre, post=post, tx=tx)

@@ -32,6 +32,8 @@ pytestmark = pytest.mark.valid_from(EOF_FORK_NAME)
         pytest.param(Op.CALLER, "sender"),
         pytest.param(Op.CALLVALUE, "value"),
         pytest.param(Op.ORIGIN, "sender"),
+        pytest.param(Op.SELFBALANCE, "selfbalance"),
+        pytest.param(Op.BALANCE(Op.CALLER), "senderbalance"),
     ],
 )
 def test_eof_creation_tx_context(
@@ -42,19 +44,27 @@ def test_eof_creation_tx_context(
 ):
     """Test EOF creation txs' initcode context instructions."""
     env = Environment()
-    sender = pre.fund_eoa()
+    initial_sender_balance = 123412341234
+    gas_limit = 10000000
+    gas_price = 10
+    sender = pre.fund_eoa(amount=initial_sender_balance)
     value = 0x1123
 
     initcode = Container(
         sections=[
-            Section.Code(
-                Op.SSTORE(slot_call_result, destination_code) + Op.RETURNCONTRACT[0](0, 0)
-            ),
+            Section.Code(Op.SSTORE(slot_call_result, destination_code) + Op.RETURNCODE[0](0, 0)),
             Section.Container(smallest_runtime_subcontainer),
         ]
     )
 
-    tx = Transaction(sender=sender, to=None, gas_limit=100000, value=value, input=initcode)
+    tx = Transaction(
+        sender=sender,
+        to=None,
+        gas_limit=gas_limit,
+        gas_price=gas_price,
+        value=value,
+        input=initcode,
+    )
 
     destination_contract_address = tx.created_contract
 
@@ -65,6 +75,10 @@ def test_eof_creation_tx_context(
         expected_bytes = sender
     elif expected_result == "value":
         expected_bytes = value
+    elif expected_result == "selfbalance":
+        expected_bytes = value
+    elif expected_result == "senderbalance":
+        expected_bytes = initial_sender_balance - gas_limit * gas_price - value
     else:
         raise TypeError("Unexpected expected_result", expected_result)
 
@@ -73,7 +87,7 @@ def test_eof_creation_tx_context(
     }
 
     post = {
-        destination_contract_address: Account(storage=destination_contract_storage),
+        destination_contract_address: Account(storage=destination_contract_storage, balance=value),
     }
 
     state_test(
@@ -143,7 +157,7 @@ def test_invalid_container_deployment(
     )
     init_container: Container = Container(
         sections=[
-            Section.Code(code=Op.RETURNCONTRACT[0](0, 0)),
+            Section.Code(code=Op.RETURNCODE[0](0, 0)),
             Section.Container(deployed_container),
         ],
         kind=ContainerKind.INITCODE,
@@ -162,14 +176,14 @@ def test_invalid_container_deployment(
         )
         init_container = Container(
             sections=[
-                Section.Code(code=Op.RETURNCONTRACT[0](0, 0)),
+                Section.Code(code=Op.RETURNCODE[0](0, 0)),
                 Section.Container(deployed_container),
             ],
         )
     elif reason == "invalid_initcode":
         init_container = Container(
             sections=[
-                Section.Code(code=Op.RETURNCONTRACT[1](0, 0)),
+                Section.Code(code=Op.RETURNCODE[1](0, 0)),
                 Section.Container(deployed_container),
             ],
         )
@@ -193,7 +207,7 @@ def test_invalid_container_deployment(
                 Section.Code(
                     code=Op.RJUMPI[len(invalid_code_path)](Op.PUSH0)
                     + invalid_code_path
-                    + Op.RETURNCONTRACT[0](0, 0)
+                    + Op.RETURNCODE[0](0, 0)
                 ),
                 Section.Container(deployed_container),
             ],
@@ -220,7 +234,7 @@ def test_invalid_container_deployment(
         tx_gas_limit = gas_cost
         init_container = Container(
             sections=[
-                Section.Code(code=Op.RETURNCONTRACT[0](0, 1)),
+                Section.Code(code=Op.RETURNCODE[0](0, 1)),
                 Section.Container(deployed_container),
             ],
         )
@@ -270,7 +284,7 @@ def test_short_data_subcontainer(
         data=Container(
             name="Runtime Subcontainer with truncated data",
             sections=[
-                Section.Code(code=Op.RETURNCONTRACT[0](0, 1)),
+                Section.Code(code=Op.RETURNCODE[0](0, 1)),
                 Section.Container(
                     Container(
                         sections=[

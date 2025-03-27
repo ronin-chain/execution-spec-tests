@@ -209,27 +209,14 @@ def test_set_code_to_sstore(
     )
 
 
-@pytest.mark.parametrize(
-    "auth_signer_nonce",
-    [
-        pytest.param(
-            0,
-            id="zero_nonce",
-            marks=pytest.mark.execute(pytest.mark.skip("unrealistic scenario")),
-        ),
-        pytest.param(None, id="non_zero_nonce"),
-    ],
-)
-def test_set_code_to_non_empty_storage(
+def test_set_code_to_non_empty_storage_non_zero_nonce(
     state_test: StateTestFiller,
     pre: Alloc,
-    auth_signer_nonce: int,
 ):
     """Test the setting the code to an account that has non-empty storage."""
     auth_signer = pre.fund_eoa(
         amount=0,
         storage=Storage({0: 1}),  # type: ignore
-        nonce=auth_signer_nonce,
     )
     sender = pre.fund_eoa()
 
@@ -2926,12 +2913,39 @@ def test_contract_create(
     pre: Alloc,
 ):
     """Test sending type-4 tx as a create transaction."""
+    authorization_tuple = AuthorizationTuple(
+        address=Address(0x01),
+        nonce=0,
+        signer=pre.fund_eoa(),
+    )
     tx = Transaction(
         gas_limit=100_000,
         to=None,
         value=0,
-        authorization_list=[],
+        authorization_list=[authorization_tuple],
         error=TransactionException.TYPE_4_TX_CONTRACT_CREATION,
+        sender=pre.fund_eoa(),
+    )
+
+    state_test(
+        env=Environment(),
+        pre=pre,
+        tx=tx,
+        post={},
+    )
+
+
+def test_empty_authorization_list(
+    state_test: StateTestFiller,
+    pre: Alloc,
+):
+    """Test sending an invalid transaction with empty authorization list."""
+    tx = Transaction(
+        gas_limit=100_000,
+        to=pre.deploy_contract(code=b""),
+        value=0,
+        authorization_list=[],
+        error=TransactionException.TYPE_4_EMPTY_AUTHORIZATION_LIST,
         sender=pre.fund_eoa(),
     )
 
@@ -3471,5 +3485,84 @@ def test_authorization_reusing_nonce(
             Address(0): Account(balance=1),
             auth_signer: Account(nonce=1, code=b""),
             sender: Account(nonce=1),
+        },
+    )
+
+
+@pytest.mark.parametrize(
+    "set_code_type",
+    list(AddressType),
+    ids=lambda address_type: address_type.name,
+)
+@pytest.mark.parametrize(
+    "self_sponsored",
+    [True, False],
+)
+@pytest.mark.execute(pytest.mark.skip(reason="Requires contract-eoa address collision"))
+def test_set_code_from_account_with_non_delegating_code(
+    state_test: StateTestFiller,
+    pre: Alloc,
+    set_code_type: AddressType,
+    self_sponsored: bool,
+):
+    """
+    Test that a transaction is correctly rejected,
+    if the sender account has a non-delegating code set.
+
+    The auth transaction is sent from sender which has contract code (not delegating)
+    But at the same time it has auth tuple that will point this sender account
+    To be eoa, delegation, contract .. etc
+    """
+    sender = pre.fund_eoa()
+    random_address = pre.fund_eoa(0)
+
+    set_code_to_address: Address
+    match set_code_type:
+        case AddressType.EMPTY_ACCOUNT:
+            set_code_to_address = pre.fund_eoa(0)
+        case AddressType.EOA:
+            set_code_to_address = pre.fund_eoa(1)
+        case AddressType.EOA_WITH_SET_CODE:
+            set_code_account = pre.fund_eoa(0)
+            set_code_to_address = pre.fund_eoa(1, delegation=set_code_account)
+        case AddressType.CONTRACT:
+            set_code_to_address = pre.deploy_contract(Op.STOP)
+        case _:
+            raise ValueError(f"Unsupported set code type: {set_code_type}")
+    callee_address = pre.deploy_contract(Op.SSTORE(0, 1) + Op.STOP)
+
+    # Set the sender account to have some code, that is specifically not a delegation.
+    sender_account = pre[sender]
+    assert sender_account is not None
+    sender_account.code = Bytes(Op.STOP)
+
+    tx = Transaction(
+        gas_limit=100_000,
+        to=callee_address,
+        authorization_list=[
+            AuthorizationTuple(
+                address=set_code_to_address,
+                nonce=1 if self_sponsored else 0,
+                signer=sender if self_sponsored else random_address,
+            ),
+        ],
+        sender=sender,
+        error=TransactionException.SENDER_NOT_EOA,
+    )
+
+    state_test(
+        env=Environment(),
+        pre=pre,
+        tx=tx,
+        post={
+            set_code_to_address: (
+                Account.NONEXISTENT
+                if set_code_type == AddressType.EMPTY_ACCOUNT
+                else Account(storage={})
+            ),
+            random_address: Account.NONEXISTENT
+            if not self_sponsored
+            else Account(code=Bytes(Op.STOP)),
+            callee_address: Account(storage={0: 0}),
         },
     )

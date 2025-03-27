@@ -16,6 +16,20 @@ EOFTests/efExample/ymlExample.json
 EOFTests/EIP3670/validInvalid.json
 EOFTests/EIP4200/validInvalid.json
 EOFTests/EIP4750/validInvalid.json
+EOFTests/efStack/backwards_rjump_.json
+EOFTests/efStack/backwards_rjump_variable_stack_.json
+EOFTests/efStack/backwards_rjumpi_.json
+EOFTests/efStack/backwards_rjumpi_variable_stack_.json
+EOFTests/efStack/backwards_rjumpv_.json
+EOFTests/efStack/backwards_rjumpv_variable_stack_.json
+EOFTests/efStack/jumpf_stack_overflow_.json
+EOFTests/efStack/forwards_rjump_.json
+EOFTests/efStack/forwards_rjump_variable_stack_.json
+EOFTests/efStack/forwards_rjumpi_.json
+EOFTests/efStack/forwards_rjumpi_variable_stack_.json
+EOFTests/efStack/forwards_rjumpv_.json
+EOFTests/efStack/forwards_rjumpv_variable_stack_.json
+EOFTests/efStack/unreachable_instructions_.json
 EOFTests/efValidation/callf_into_nonreturning_.json
 EOFTests/efValidation/dataloadn_.json
 EOFTests/efValidation/EOF1_embedded_container_.json
@@ -23,6 +37,7 @@ EOFTests/efValidation/EOF1_eofcreate_valid_.json
 EOFTests/efValidation/EOF1_callf_truncated_.json
 EOFTests/efValidation/EOF1_code_section_missing_.json
 EOFTests/efValidation/EOF1_dataloadn_truncated_.json
+EOFTests/efValidation/EOF1_eofcreate_invalid_.py
 EOFTests/efValidation/EOF1_multiple_type_sections_.py
 EOFTests/efValidation/EOF1_no_type_section_.json
 EOFTests/efValidation/EOF1_valid_rjump_.json
@@ -82,3 +97,6 @@ GeneralStateTests/VMTests/vmTests/push.json
 
 ([#1067](https://github.com/ethereum/execution-spec-tests/pull/1067))
 GeneralStateTests/stPreCompiledContracts/blake2B.json
+
+([#1067](https://github.com/ethereum/execution-spec-tests/pull/1120))
+GeneralStateTests/stPreCompiledContracts/idPrecomps.json

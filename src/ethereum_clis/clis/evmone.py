@@ -187,6 +187,9 @@ class EvmoneExceptionMapper(ExceptionMapper):
             ExceptionMessage(
                 EOFException.INCOMPATIBLE_CONTAINER_KIND, "err: incompatible_container_kind"
             ),
+            ExceptionMessage(
+                EOFException.AMBIGUOUS_CONTAINER_KIND, "err: ambiguous_container_kind"
+            ),
             ExceptionMessage(EOFException.STACK_HEIGHT_MISMATCH, "err: stack_height_mismatch"),
             ExceptionMessage(EOFException.TOO_MANY_CONTAINERS, "err: too_many_container_sections"),
             ExceptionMessage(
@@ -194,5 +197,9 @@ class EvmoneExceptionMapper(ExceptionMapper):
             ),
             ExceptionMessage(
                 EOFException.CALLF_TO_NON_RETURNING, "err: callf_to_non_returning_function"
+            ),
+            ExceptionMessage(
+                EOFException.EOFCREATE_WITH_TRUNCATED_CONTAINER,
+                "err: eofcreate_with_truncated_container",
             ),
         ]

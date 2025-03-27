@@ -173,58 +173,58 @@
 - [ ] Check all terminating opcodes (ethereum/tests: ./src/EOFTestsFiller/efExample/validInvalidFiller.yml src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
 - [ ] Code section not terminating (executing beyond section end) (ethereum/tests: ./src/EOFTestsFiller/efExample/validInvalidFiller.yml src/EOFTestsFiller/EIP5450/validInvalidFiller.yml src/EOFTestsFiller/efStack/no_terminating_instruction_Copier.json)
 - [ ] Code section ending with NOP (not terminating) (src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] Check that unreachable code is invalid after all terminating instructions (ethereum/tests: src/EOFTestsFiller/EIP5450/validInvalidFiller.yml src/EOFTestsFiller/efStack/unreachable_instructions_Copier.json)
+- [ ] Check that unreachable code is invalid after all terminating instructions (ethereum/tests: src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
 
 #### Jumps
 
 ##### RJUMP
 
-- [ ] Valid RJUMP backwards in a constant stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjump_Copier.json)
-- [ ] Invalid RJUMP backwards with mismatching stack in a constant stack segment(ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjump_Copier.json)
-- [ ] Valid RJUMP backwards in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjump_variable_stack_Copier.json)
-- [ ] Invalid RJUMP backwards with mismatching stack in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjump_variable_stack_Copier.json)
-- [ ] Valid RJUMP forwards (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjump_Copier.json)
-- [ ] Valid RJUMP forwards from different stack (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjump_Copier.json)
-- [ ] Valid RJUMP forwards in variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjump_variable_stack_Copier.json)
-- [ ] Valid RJUMP forwards from different stack in variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjump_variable_stack_Copier.json)
+- [x] Valid RJUMP backwards in a constant stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_valid_backward`](./eip4200_relative_jumps/test_rjump/test_rjump_valid_backward.md)
+- [x] Invalid RJUMP backwards with mismatching stack in a constant stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_backward_invalid_max_stack_height`](./eip4200_relative_jumps/test_rjump/test_rjump_backward_invalid_max_stack_height.md)
+- [x] Valid RJUMP backwards in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_valid_backward`](./eip4200_relative_jumps/test_rjump/test_rjump_valid_backward.md)
+- [x] Invalid RJUMP backwards with mismatching stack in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_backward_invalid_max_stack_height`](./eip4200_relative_jumps/test_rjump/test_rjump_backward_invalid_max_stack_height.md)
+- [x] Valid RJUMP forwards ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_valid_forward`](./eip4200_relative_jumps/test_rjump/test_rjump_valid_forward.md)
+- [x] Valid RJUMP forwards from different stack ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_valid_forward`](./eip4200_relative_jumps/test_rjump/test_rjump_valid_forward.md)
+- [x] Valid RJUMP forwards in variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_valid_forward`](./eip4200_relative_jumps/test_rjump/test_rjump_valid_forward.md)
+- [x] Valid RJUMP forwards from different stack in variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjump.py::test_rjump_valid_forward`](./eip4200_relative_jumps/test_rjump/test_rjump_valid_forward.md)
 - [ ] Valid empty infinite loop with RJUMP (ethereum/tests: src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
 - [ ] Valid balanced infinite loop (ethereum/tests: src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
 
 ##### RJUMPI
 
-- [ ] Valid RJUMPI backwards in a constant stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpi_Copier.json)
-- [ ] Invalid RJUMPI backwards with mismatching stack in a constant stack segment(ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpi_Copier.json)
-- [ ] Valid RJUMPI backwards in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpi_variable_stack_Copier.json)
-- [ ] Invalid RJUMPI backwards with mismatching stack in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpi_variable_stack_Copier.json)
-- [ ] RJUMPI forward with branches of equal stack height (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_Copier.json src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] RJUMPI forward with branches of equal stack height in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_variable_stack_Copier.json)
-- [ ] RJUMPI forward with branches of different stack height (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_Copier.json src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] RJUMPI forward with branches of different stack height in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_variable_stack_Copier.json)
-- [ ] Valid loop using RJUMPI (ethereum/tests: src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] Valid loop with a break using RJUMPI - equal stack after break and normal loop end (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_Copier.json)
-- [ ] Valid loop with a break using RJUMPI - equal stack after break and normal loop end, variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_variable_stack_Copier.json)
-- [ ] Valid loop with a break using RJUMPI - different stack after break and normal loop end (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_Copier.json)
-- [ ] Valid loop with a break using RJUMPI - different stack after break and normal loop end, variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_variable_stack_Copier.json)
-- [ ] If-then-else with equal stack height in branches (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_Copier.json)
-- [ ] If-then-else with equal stack height in branches, variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_variable_stack_Copier.json)
-- [ ] If-then-else with different stack height in branches (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_Copier.json)
-- [ ] If-then-else with different stack height in branches, variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpi_variable_stack_Copier.json)
+- [x] Valid RJUMPI backwards in a constant stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_backward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_backward.md)
+- [x] Invalid RJUMPI backwards with mismatching stack in a constant stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_backward_invalid_max_stack_height`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_backward_invalid_max_stack_height.md)
+- [x] Valid RJUMPI backwards in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_backward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_backward.md)
+- [x] Invalid RJUMPI backwards with mismatching stack in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_backward_invalid_max_stack_height`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_backward_invalid_max_stack_height.md)
+- [x] RJUMPI forward with branches of equal stack height ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] RJUMPI forward with branches of equal stack height in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] RJUMPI forward with branches of different stack height ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] RJUMPI forward with branches of different stack height in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] Valid loop using RJUMPI ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] Valid loop with a break using RJUMPI - equal stack after break and normal loop end ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] Valid loop with a break using RJUMPI - equal stack after break and normal loop end, variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] Valid loop with a break using RJUMPI - different stack after break and normal loop end ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] Valid loop with a break using RJUMPI - different stack after break and normal loop end, variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] If-then-else with equal stack height in branches ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] If-then-else with equal stack height in branches, variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] If-then-else with different stack height in branches ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
+- [x] If-then-else with different stack height in branches, variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpi.py::test_rjumpi_valid_forward`](./eip4200_relative_jumps/test_rjumpi/test_rjumpi_valid_forward.md)
 
 ##### RJUMPV
 
-- [ ] Valid RJUMPV backwards in a constant stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpv_Copier.json)
-- [ ] Invalid RJUMPV backwards with mismatching stack in a constant stack segment(ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpv_Copier.json)
-- [ ] Valid RJUMPV backwards in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpv_variable_stack_Copier.json)
-- [ ] Invalid RJUMPV backwards with mismatching stack in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/backwards_rjumpv_variable_stack_Copier.json)
-- [ ] RJUMPV forward with branches of equal stack height (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_Copier.json src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] RJUMPV forward with branches of equal stack height in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_variable_stack_Copier.json)
-- [ ] RJUMPV forward with branches of different stack height (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_Copier.json src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] RJUMPV forward with branches of different stack height  in a variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_variable_stack_Copier.json)
+- [x] Valid RJUMPV backwards in a constant stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_backward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_backward.md)
+- [x] Invalid RJUMPV backwards with mismatching stack in a constant stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_backward_invalid_max_stack_height`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_backward_invalid_max_stack_height.md)
+- [x] Valid RJUMPV backwards in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_backward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_backward.md)
+- [x] Invalid RJUMPV backwards with mismatching stack in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_backward_invalid_max_stack_height`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_backward_invalid_max_stack_height.md)
+- [x] RJUMPV forward with branches of equal stack height ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
+- [x] RJUMPV forward with branches of equal stack height in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
+- [x] RJUMPV forward with branches of different stack height ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
+- [x] RJUMPV forward with branches of different stack height  in a variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
 - [ ] Valid infinite loop using RJUMPV (ethereum/tests: src/EOFTestsFiller/EIP5450/validInvalidFiller.yml)
-- [ ] Switch with equal stack height in branches (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_Copier.json)
-- [ ] Switch with equal stack height in branches, variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_variable_stack_Copier.json)
-- [ ] Switch with different stack height in branches (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_Copier.json)
-- [ ] Switch with different stack height in branches, variable stack segment (ethereum/tests: src/EOFTestsFiller/efStack/forwards_rjumpv_variable_stack_Copier.json)
+- [x] Switch with equal stack height in branches ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
+- [x] Switch with equal stack height in branches, variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
+- [x] Switch with different stack height in branches ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
+- [x] Switch with different stack height in branches, variable stack segment ([`tests/osaka/eip7692_eof_v1/eip4200_relative_jumps/test_rjumpv.py::test_rjumpv_valid_forward`](./eip4200_relative_jumps/test_rjumpv/test_rjumpv_valid_forward.md)
 
 ##### Combinations
 
@@ -296,8 +296,8 @@
 
 ##### JUMPF
 
-- [ ] Max allowed stack height reached in JUMPF-ed function (ethereum/tests: src/EOFTestsFiller/efStack/jumpf_stack_overflow_Copier.json)
-- [ ] JUMPF validation time stack overflow (ethereum/tests: src/EOFTestsFiller/efStack/jumpf_stack_overflow_Copier.json)
+- [x] Max allowed stack height reached in JUMPF-ed function ([`tests/osaka/eip7692_eof_v1/eip6206_jumpf/test_jumpf_validation.py::test_jumpf_other_stack_overflow`](./eip6206_jumpf/test_jumpf_validation/test_jumpf_other_stack_overflow.md))
+- [x] JUMPF validation time stack overflow ([`tests/osaka/eip7692_eof_v1/eip6206_jumpf/test_jumpf_validation.py::test_jumpf_other_stack_overflow`](./eip6206_jumpf/test_jumpf_validation/test_jumpf_other_stack_overflow.md))
 - [ ] Max allowed stack height reached in JUMPF-ed function with inputs
 - [ ] JUMPF validation time stack overflow in function with inputs (ethereum/tests: src/EOFTestsFiller/efStack/jumpf_with_inputs_stack_overflow_Copier.json)
 - [ ] JUMPF validation time stack overflow in function with inputs, variable stack segment, only max overflow (ethereum/tests: src/EOFTestsFiller/efStack/jumpf_with_inputs_stack_overflow_variable_stack_Copier.json)
@@ -427,14 +427,14 @@
 ### Validation
 
 - [ ] Valid EOFCREATEs referring to various container numbers (ethereum/tests: ./src/EOFTestsFiller/efValidation/EOF1_eofcreate_valid_Copier.json)
-- [ ] Truncated before EOFCREATE immediate (ethereum/tests: ./src/EOFTestsFiller/efValidation/EOF1_eofcreate_invalid_Copier.json)
-- [ ] EOFCREATE is not a valid terminating instruction (ethereum/tests: ./src/EOFTestsFiller/efValidation/EOF1_eofcreate_invalid_Copier.json)
-- [ ] EOFCREATE immediate referring to non-existing container (ethereum/tests: ./src/EOFTestsFiller/efValidation/EOF1_eofcreate_invalid_Copier.json)
-- [ ] EOFCREATE immediate referring to container with truncated data (ethereum/tests: ./src/EOFTestsFiller/efValidation/EOF1_eofcreate_invalid_Copier.json)
-- [x] Valid RETURNCONTRACTs referring to various container numbers ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncontract.py`](./eip7620_eof_create/test_returncontract/index.md)`-k test_returncontract_valid_index`)
-- [x] Truncated before RETURNCONTRACT immediate ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncontract.py::test_returncontract_invalid_truncated_immediate`](./eip7620_eof_create/test_returncontract/test_returncontract_invalid_truncated_immediate.md))
-- [x] RETURNCONTRACT immediate referring to non-existing container ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncontract.py`](./eip7620_eof_create/test_returncontract/index.md)`-k test_returncontract_invalid_index`)
-- [x] Unreachable code after RETURNCONTRACT, check that RETURNCONTRACT is terminating ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncontract.py::test_returncontract_terminating`](./eip7620_eof_create/test_returncontract/test_returncontract_terminating.md))
+- [x] Truncated before EOFCREATE immediate ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_eofcreate.py`](./eip7620_eof_create/test_eofcreate/index.md)`-k test_eofcreate_invalid_truncated_immediate`)
+- [ ] EOFCREATE is not a valid terminating instruction
+- [x] EOFCREATE immediate referring to non-existing container ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_eofcreate.py`](./eip7620_eof_create/test_eofcreate/index.md)`-k test_eofcreate_invalid_index`)
+- [x] EOFCREATE immediate referring to container with truncated data ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_eofcreate.py`](./eip7620_eof_create/test_eofcreate/index.md)`-k test_eofcreate_truncated_container`)
+- [x] Valid RETURNCODEs referring to various container numbers ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncode.py`](./eip7620_eof_create/test_returncode/index.md)`-k test_returncode_valid_index`)
+- [x] Truncated before RETURNCODE immediate ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncode.py::test_returncode_invalid_truncated_immediate`](./eip7620_eof_create/test_returncode/test_returncode_invalid_truncated_immediate.md))
+- [x] RETURNCODE immediate referring to non-existing container ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncode.py`](./eip7620_eof_create/test_returncode/index.md)`-k test_returncode_invalid_index`)
+- [x] Unreachable code after RETURNCODE, check that RETURNCODE is terminating ([`tests/osaka/eip7692_eof_v1/eip7620_eof_create/test_returncode.py::test_returncode_terminating`](./eip7620_eof_create/test_returncode/test_returncode_terminating.md))
 
 ### Execution
 
@@ -463,7 +463,7 @@
 - [ ] EOFCREATE with value - not enough caller balance (evmone-tests: state_tests/state_transition/eof_create/eofcreate_caller_balance_too_low.json)
 - [ ] EOFCREATE not enough gas for initcode (EIP-3860) charge (evmone-tests: state_tests/state_transition/eof_create/eofcreate_not_enough_gas_for_initcode_charge.json)
 - [ ] EOFCREATE not enough gas for input memory expansion (evmone-tests: state_tests/state_transition/eof_create/eofcreate_not_enough_gas_for_mem_expansion.json)
-- [ ] RETURNCONTRACT not enough gas for aux data memory expansion (evmone-tests: state_tests/state_transition/eof_create/returncontract_not_enough_gas_for_mem_expansion.json)
+- [ ] RETURNCODE not enough gas for aux data memory expansion (evmone-tests: state_tests/state_transition/eof_create/returncode_not_enough_gas_for_mem_expansion.json)
 - [ ] Successful EOFCREATE clears returndata  (evmone-tests: state_tests/state_transition/eof_create/eofcreate_clears_returndata.json)
 - [ ] Second EOFCREATE with the same container and salt fails (evmone-tests: state_tests/state_transition/eof_create/eofcreate_failure_after_eofcreate_success.json)
 - [ ] Call created contract after EOFCREATE (evmone-tests: state_tests/state_transition/eof_create/eofcreate_call_created_contract.json)

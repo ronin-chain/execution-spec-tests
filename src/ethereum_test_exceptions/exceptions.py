@@ -742,6 +742,10 @@ class EOFException(ExceptionBase):
     """
     Incompatible instruction found in a container of a specific kind.
     """
+    AMBIGUOUS_CONTAINER_KIND = auto()
+    """
+    The kind of a sub-container cannot be uniquely deduced.
+    """
     TOO_MANY_CONTAINERS = auto()
     """
     EOF container header has too many sub-containers.
@@ -757,6 +761,10 @@ class EOFException(ExceptionBase):
     CALLF_TO_NON_RETURNING = auto()
     """
     CALLF instruction targeting a non-returning code section
+    """
+    EOFCREATE_WITH_TRUNCATED_CONTAINER = auto()
+    """
+    EOFCREATE with truncated container
     """
 
 

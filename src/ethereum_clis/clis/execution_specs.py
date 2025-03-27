@@ -4,6 +4,7 @@ Ethereum Specs EVM Resolver Transition Tool Interface.
 https://github.com/petertdavies/ethereum-spec-evm-resolver
 """
 
+import os
 import re
 import subprocess
 import time
@@ -53,6 +54,7 @@ class ExecutionSpecsTransitionTool(TransitionTool):
         trace: bool = False,
     ):
         """Initialize the Ethereum Specs EVM Resolver Transition Tool interface."""
+        os.environ.setdefault("NO_PROXY", "*")  # Disable proxy for local connections
         super().__init__(
             exception_mapper=ExecutionSpecsExceptionMapper(), binary=binary, trace=trace
         )
@@ -130,6 +132,14 @@ class ExecutionSpecsExceptionMapper(ExceptionMapper):
     @property
     def _mapping_data(self):
         return [
+            ExceptionMessage(
+                TransactionException.TYPE_4_EMPTY_AUTHORIZATION_LIST,
+                "Failed transaction: InvalidBlock()",
+            ),
+            ExceptionMessage(
+                TransactionException.SENDER_NOT_EOA,
+                "Failed transaction: InvalidSenderError('not EOA')",
+            ),
             ExceptionMessage(
                 TransactionException.TYPE_4_TX_CONTRACT_CREATION,
                 "Failed transaction: ",
