@@ -10,10 +10,7 @@ from .transition_base_fork import TransitionBaseClass
 
 
 class InvalidForkError(Exception):
-    """
-    Invalid fork error raised when the fork specified by command-line option
-    --latest-fork is not found.
-    """
+    """Invalid fork error raised when the fork specified is not found or incompatible."""
 
     def __init__(self, message):
         """Initialize the InvalidForkError exception."""
@@ -56,7 +53,7 @@ def get_parent_fork(fork: Fork) -> Fork:
     """Return parent fork of the specified fork."""
     parent_fork = fork.__base__
     if not parent_fork:
-        raise Exception(f"Parent fork of {fork} not found.")
+        raise InvalidForkError(f"Parent fork of {fork} not found.")
     return parent_fork
 
 
@@ -96,6 +93,20 @@ def get_transition_forks() -> Set[Fork]:
             transition_forks.add(fork)
 
     return transition_forks
+
+
+def get_transition_fork_predecessor(transition_fork: Fork) -> Fork:
+    """Return the fork from which the transition fork transitions."""
+    if not issubclass(transition_fork, TransitionBaseClass):
+        raise InvalidForkError(f"{transition_fork} is not a transition fork.")
+    return transition_fork.transitions_from()
+
+
+def get_transition_fork_successor(transition_fork: Fork) -> Fork:
+    """Return the fork to which the transition fork transitions."""
+    if not issubclass(transition_fork, TransitionBaseClass):
+        raise InvalidForkError(f"{transition_fork} is not a transition fork.")
+    return transition_fork.transitions_to()
 
 
 def get_from_until_fork_set(
@@ -208,3 +219,34 @@ def forks_from(fork: Fork, deployed_only: bool = True) -> List[Fork]:
     else:
         latest_fork = get_forks()[-1]
     return forks_from_until(fork, latest_fork)
+
+
+def get_relative_fork_markers(fork_identifier: Fork | str, strict_mode: bool = True) -> list[str]:
+    """
+    Return a list of marker names for a given fork.
+
+    For a base fork (e.g. `Shanghai`), return [ `Shanghai` ].
+    For a transition fork (e.g. `ShanghaiToCancunAtTime15k` which transitions to `Cancun`),
+    return [ `ShanghaiToCancunAtTime15k`, `Cancun` ].
+
+    If `strict_mode` is set to `True`, raise an `InvalidForkError` if the fork is not found,
+    otherwise, simply return the provided (str) `fork_identifier` (this is required to run
+    `consume` with forks that are unknown to EEST).
+    """
+    all_forks = set(get_forks()) | set(get_transition_forks())
+    if isinstance(fork_identifier, str):
+        fork_class = None
+        for candidate in all_forks:
+            if candidate.name() == fork_identifier:
+                fork_class = candidate
+                break
+        if strict_mode and fork_class is None:
+            raise InvalidForkError(f"Unknown fork: {fork_identifier}")
+        return [fork_identifier]
+    else:
+        fork_class = fork_identifier
+
+    if issubclass(fork_class, TransitionBaseClass):
+        return [fork_class.name(), fork_class.transitions_to().name()]
+    else:
+        return [fork_class.name()]

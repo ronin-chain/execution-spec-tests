@@ -106,6 +106,7 @@ def recursive_revert_contract_code(
         """  # noqa: E272, E201, E202, E221, E501
     )
 
+
 @pytest.fixture
 def recursive_revert_contract_address(
     pre: Alloc,

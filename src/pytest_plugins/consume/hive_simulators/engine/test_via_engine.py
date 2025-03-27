@@ -10,11 +10,9 @@ from ethereum_test_rpc import EngineRPC, EthRPC
 from ethereum_test_rpc.types import ForkchoiceState, JSONRPCError, PayloadStatusEnum
 from pytest_plugins.consume.hive_simulators.exceptions import GenesisBlockMismatchExceptionError
 
-from ...decorator import fixture_format
 from ..timing import TimingData
 
 
-@fixture_format(BlockchainEngineFixture)
 def test_blockchain_via_engine(
     timing_data: TimingData,
     eth_rpc: EthRPC,

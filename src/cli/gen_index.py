@@ -23,16 +23,6 @@ from ethereum_test_fixtures.file import Fixtures
 
 from .hasher import HashableItem
 
-# TODO: remove when these tests are ported or fixed within ethereum/tests.
-fixtures_to_skip = {
-    # These fixtures have invalid fields that we can't load into our pydantic models (bigint).
-    "BlockchainTests/GeneralStateTests/stTransactionTest/ValueOverflowParis.json",
-    "BlockchainTests/InvalidBlocks/bc4895-withdrawals/withdrawalsAmountBounds.json",
-    "BlockchainTests/InvalidBlocks/bc4895-withdrawals/withdrawalsIndexBounds.json",
-    "BlockchainTests/InvalidBlocks/bc4895-withdrawals/withdrawalsValidatorIndexBounds.json",
-    "BlockchainTests/InvalidBlocks/bc4895-withdrawals/withdrawalsAddressBounds.json",
-}
-
 
 def count_json_files_exclude_index(start_path: Path) -> int:
     """
@@ -150,13 +140,11 @@ def generate_fixtures_index(
         disable=quiet_mode,
     ) as progress:  # type: Progress
         task_id = progress.add_task("[cyan]Processing files...", total=total_files, filename="...")
-
+        forks = set()
+        fixture_formats = set()
         test_cases: List[TestCaseIndexFile] = []
         for file in input_path.rglob("*.json"):
             if file.name == "index.json" or ".meta" in file.parts:
-                continue
-            if any(fixture in str(file) for fixture in fixtures_to_skip):
-                rich.print(f"Skipping '{file}'")
                 continue
 
             try:
@@ -167,15 +155,21 @@ def generate_fixtures_index(
 
             relative_file_path = Path(file).absolute().relative_to(Path(input_path).absolute())
             for fixture_name, fixture in fixtures.items():
+                fixture_fork = fixture.get_fork()
                 test_cases.append(
                     TestCaseIndexFile(
                         id=fixture_name,
                         json_path=relative_file_path,
-                        fixture_hash=fixture.info.get("hash", None),
-                        fork=fixture.get_fork(),
+                        # eest uses hash; ethereum/tests uses generatedTestHash
+                        fixture_hash=fixture.info.get("hash")
+                        or f"0x{fixture.info.get('generatedTestHash')}",
+                        fork=fixture_fork,
                         format=fixture.__class__,
                     )
                 )
+                if fixture_fork:
+                    forks.add(fixture_fork)
+                fixture_formats.add(fixture.format_name)
 
             display_filename = file.name
             if len(display_filename) > filename_display_width:
@@ -196,6 +190,8 @@ def generate_fixtures_index(
         root_hash=root_hash,
         created_at=datetime.datetime.now(),
         test_count=len(test_cases),
+        forks=list(forks),
+        fixture_formats=list(fixture_formats),
     )
 
     with open(output_file, "w") as f:

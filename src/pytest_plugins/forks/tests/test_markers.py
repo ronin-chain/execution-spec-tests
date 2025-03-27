@@ -12,7 +12,8 @@ def generate_test(**kwargs: str):
     return f"""
 import pytest
 {marker_lines}
-def test_case(state_test_only):
+@pytest.mark.state_test_only
+def test_case(state_test):
     pass
 """
 
@@ -110,6 +111,14 @@ def test_case(state_test_only):
             ["--until=Prague"],
             {"passed": 2, "failed": 0, "skipped": 0, "errors": 0},
             id="valid_at_transition_to,subsequent_forks=True,until",
+        ),
+        pytest.param(
+            generate_test(
+                valid_at_transition_to='"Cancun"',
+            ),
+            ["--fork=ShanghaiToCancunAtTime15k"],
+            {"passed": 1, "failed": 0, "skipped": 0, "errors": 0},
+            id="valid_at_transition_to,--fork=transition_fork_only",
         ),
     ],
 )

@@ -34,7 +34,6 @@ from ethereum_test_base_types import (
 from ethereum_test_exceptions import EngineAPIError, ExceptionInstanceOrList
 from ethereum_test_forks import Fork, Paris
 from ethereum_test_types.types import (
-    AuthorizationTupleGeneric,
     Transaction,
     TransactionFixtureConverter,
     TransactionGeneric,
@@ -43,7 +42,7 @@ from ethereum_test_types.types import (
 )
 
 from .base import BaseFixture
-from .common import FixtureBlobSchedule
+from .common import FixtureAuthorizationTuple, FixtureBlobSchedule
 
 
 class HeaderForkRequirement(str):
@@ -318,19 +317,6 @@ class FixtureEngineNewPayload(CamelModel):
         return new_payload
 
 
-class FixtureAuthorizationTuple(AuthorizationTupleGeneric[ZeroPaddedHexNumber]):
-    """Authorization tuple for fixture transactions."""
-
-    signer: Address | None = None
-
-    @classmethod
-    def from_authorization_tuple(
-        cls, auth_tuple: AuthorizationTupleGeneric
-    ) -> "FixtureAuthorizationTuple":
-        """Return FixtureAuthorizationTuple from an AuthorizationTuple."""
-        return cls(**auth_tuple.model_dump())
-
-
 class FixtureTransaction(TransactionFixtureConverter, TransactionGeneric[ZeroPaddedHexNumber]):
     """Representation of an Ethereum transaction within a test Fixture."""
 
@@ -448,7 +434,7 @@ class BlockchainFixtureCommon(BaseFixture):
 class BlockchainFixture(BlockchainFixtureCommon):
     """Cross-client specific blockchain test model use in JSON fixtures."""
 
-    fixture_format_name: ClassVar[str] = "blockchain_test"
+    format_name: ClassVar[str] = "blockchain_test"
     description: ClassVar[str] = "Tests that generate a blockchain test fixture."
 
     genesis_rlp: Bytes = Field(..., alias="genesisRLP")
@@ -459,7 +445,7 @@ class BlockchainFixture(BlockchainFixtureCommon):
 class BlockchainEngineFixture(BlockchainFixtureCommon):
     """Engine specific test fixture information."""
 
-    fixture_format_name: ClassVar[str] = "blockchain_test_engine"
+    format_name: ClassVar[str] = "blockchain_test_engine"
     description: ClassVar[str] = (
         "Tests that generate a blockchain test fixture in Engine API format."
     )

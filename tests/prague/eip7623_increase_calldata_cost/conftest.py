@@ -20,7 +20,6 @@ from ethereum_test_tools import (
 )
 from ethereum_test_tools import Opcodes as Op
 
-from ...cancun.eip4844_blobs.spec import Spec as EIP_4844_Spec
 from .helpers import DataTestType, find_floor_cost_threshold
 
 
@@ -101,7 +100,7 @@ def blob_versioned_hashes(ty: int) -> Sequence[Hash] | None:
     return (
         add_kzg_version(
             [Hash(1)],
-            EIP_4844_Spec.BLOB_COMMITMENT_VERSION_KZG,
+            1,
         )
         if ty == 3
         else None
