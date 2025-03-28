@@ -17,7 +17,6 @@ from ethereum_test_tools import (
 )
 from ethereum_test_tools import Opcodes as Op
 
-from ...cancun.eip4844_blobs.spec import Spec as EIP_4844_Spec
 from .helpers import DataTestType
 from .spec import ref_spec_7623
 
@@ -194,14 +193,14 @@ def test_transaction_validity_type_1_type_2(
         pytest.param(
             add_kzg_version(
                 [Hash(x) for x in range(1)],
-                EIP_4844_Spec.BLOB_COMMITMENT_VERSION_KZG,
+                1,
             ),
             id="single_blob",
         ),
         pytest.param(
             add_kzg_version(
                 [Hash(x) for x in range(6)],
-                EIP_4844_Spec.BLOB_COMMITMENT_VERSION_KZG,
+                1,
             ),
             id="multiple_blobs",
         ),
