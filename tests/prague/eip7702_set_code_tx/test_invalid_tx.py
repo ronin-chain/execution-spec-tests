@@ -32,7 +32,7 @@ def test_empty_authorization_list(
 ):
     """Test sending a transaction with an empty authorization list."""
     tx = Transaction(
-        gas_limit=100_000,
+        gas_limit=1_000_000,
         to=0,
         value=0,
         authorization_list=[],
@@ -71,7 +71,7 @@ def test_invalid_auth_signature(
 ):
     """Test sending a transaction where one of the signature elements is out of range."""
     tx = Transaction(
-        gas_limit=100_000,
+        gas_limit=1_000_000,
         to=0,
         value=0,
         authorization_list=[
@@ -128,7 +128,7 @@ def test_invalid_tx_invalid_auth_chain_id(
     )
 
     tx = Transaction(
-        gas_limit=100_000,
+        gas_limit=1_000_000,
         to=0,
         value=0,
         authorization_list=[authorization],
@@ -171,7 +171,7 @@ def test_invalid_tx_invalid_nonce(
     auth_signer = pre.fund_eoa()
 
     tx = Transaction(
-        gas_limit=100_000,
+        gas_limit=1_000_000,
         to=0,
         value=0,
         authorization_list=[

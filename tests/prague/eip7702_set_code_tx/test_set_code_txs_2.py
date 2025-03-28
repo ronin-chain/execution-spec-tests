@@ -370,7 +370,7 @@ def test_call_to_precompile_in_pointer_context(
 
     tx = Transaction(
         to=contract_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=[0x11] * 256,
         value=0,
         sender=sender,
@@ -444,7 +444,7 @@ def test_pointer_to_precompile(state_test: StateTestFiller, pre: Alloc, precompi
 
     tx = Transaction(
         to=contract_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=[0x11] * 256,
         value=0,
         sender=sender,
@@ -623,7 +623,7 @@ def test_gas_diff_pointer_vs_direct_call(
 
     tx_0 = Transaction(
         to=1,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -642,7 +642,7 @@ def test_gas_diff_pointer_vs_direct_call(
 
     tx = Transaction(
         to=contract_test_normal,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -672,7 +672,7 @@ def test_gas_diff_pointer_vs_direct_call(
     )
     tx2 = Transaction(
         to=contract_test_pointer,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -770,7 +770,7 @@ def test_pointer_call_followed_by_direct_call(
 
     tx = Transaction(
         to=contract_test_gas,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -822,7 +822,7 @@ def test_pointer_to_static(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=pointer_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -868,7 +868,7 @@ def test_static_to_pointer(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=contract_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -913,7 +913,7 @@ def test_pointer_to_eof(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=pointer_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -980,7 +980,7 @@ def test_pointer_to_static_reentry(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=pointer_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=[0x00] * 32,
         value=0,
         sender=sender,
@@ -1074,7 +1074,7 @@ def test_contract_storage_to_pointer_with_storage(
 
     tx = Transaction(
         to=contract_a,
-        gas_limit=3_000_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -1186,7 +1186,7 @@ def test_pointer_reentry(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=pointer_b,
-        gas_limit=2_000_000,
+        gas_limit=1_000_000,
         data=Hash(contract_b, left_padding=True)
         + Hash(ReentryAction.CALL_PROXY, left_padding=True),
         value=0,
@@ -1225,7 +1225,7 @@ def test_eoa_init_as_pointer(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=sender,
-        gas_limit=200_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -1289,7 +1289,7 @@ def test_call_pointer_to_created_from_create_after_oog_call_again(
     storage_create = Storage()
     tx = Transaction(
         to=contract_main,
-        gas_limit=800_000,
+        gas_limit=1_000_000,
         data=Op.SSTORE(storage_create.store_next(1, "create_init_code"), 1)
         + Op.SSTORE(
             storage_create.store_next(1, "call_pointer_from_init"), Op.CALL(address=pointer)
@@ -1410,7 +1410,7 @@ def test_pointer_reverts(
     )
     tx = Transaction(
         to=contract_main,
-        gas_limit=800_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -1480,7 +1480,7 @@ def test_double_auth(
 
     tx = Transaction(
         to=contract_main,
-        gas_limit=200_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -1560,7 +1560,7 @@ def test_pointer_resets_an_empty_code_account_with_storage(
 
     tx_set_pointer_storage = Transaction(
         to=pointer,
-        gas_limit=200_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -1574,7 +1574,7 @@ def test_pointer_resets_an_empty_code_account_with_storage(
     )
     tx_set_sender_storage = Transaction(
         to=sender,
-        gas_limit=200_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -1589,7 +1589,7 @@ def test_pointer_resets_an_empty_code_account_with_storage(
 
     tx_reset_code = Transaction(
         to=pointer,
-        gas_limit=200_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         nonce=3,
@@ -1611,7 +1611,7 @@ def test_pointer_resets_an_empty_code_account_with_storage(
     contract_2 = pre.deploy_contract(code=Op.SSTORE(1, 1))
     tx_send_from_empty_code_with_storage = Transaction(
         to=contract_2,
-        gas_limit=200_000,
+        gas_limit=1_000_000,
         data=b"",
         value=0,
         nonce=5,
@@ -1639,7 +1639,7 @@ def test_pointer_resets_an_empty_code_account_with_storage(
 
     tx_create_suicide_from_pointer = Transaction(
         to=contract_create,
-        gas_limit=800_000,
+        gas_limit=1_000_000,
         data=Op.SSTORE(6, 6)
         + Op.MSTORE(0, deploy_code.hex())
         + Op.RETURN(32 - len(deploy_code), len(deploy_code)),
