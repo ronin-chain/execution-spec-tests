@@ -224,7 +224,7 @@ class TestContractCreationGasUsage:
         On EIP-7623, we need to use an access list to raise the intrinsic gas cost to
         be above the floor data cost.
         """
-        return [AccessList(address=Address(i), storage_keys=[]) for i in range(1, 478)]
+        return [AccessList(address=Address(i), storage_keys=[]) for i in range(1, 642)]
 
     @pytest.fixture
     def exact_intrinsic_gas(
