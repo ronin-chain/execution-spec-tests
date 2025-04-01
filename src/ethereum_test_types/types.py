@@ -391,7 +391,7 @@ class AuthorizationTupleGeneric(CamelModel, Generic[NumberBoundTypeVar]):
 
     chain_id: NumberBoundTypeVar = Field(0)  # type: ignore
     address: Address
-    nonce: List[NumberBoundTypeVar] | NumberBoundTypeVar = Field(0)  # type: ignore
+    nonce: NumberBoundTypeVar = Field(0)  # type: ignore
 
     v: NumberBoundTypeVar = Field(0)  # type: ignore
     r: NumberBoundTypeVar = Field(0)  # type: ignore
