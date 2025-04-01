@@ -19,6 +19,7 @@ from ethereum_test_tools import (
     add_kzg_version,
 )
 from ethereum_test_tools import Opcodes as Op
+from ethereum_test_types.types import NetworkWrappedTransaction
 
 from .helpers import DataTestType, find_floor_cost_threshold
 from .spec import Spec
@@ -335,10 +336,13 @@ def tx(
     )
 
     if tx.ty == 3:
-        tx.blobs = [Bytes(bytes(4096 * 32))]
-        tx.blob_kzg_commitments = [Bytes(Spec.INF_POINT)]
-        tx.blob_kzg_proofs = [Bytes(Spec.INF_POINT)]
-        tx.blob_versioned_hashes = [Hash(Spec.kzg_to_versioned_hash(Spec.INF_POINT))]
-        tx.wrapped_blob_transaction = True
+        network_wrapped_tx = NetworkWrappedTransaction(
+            tx=tx,
+            blobs=[Bytes(bytes(4096 * 32))],
+            blob_kzg_commitments=[Bytes(Spec.INF_POINT)],
+            blob_kzg_proofs=[Bytes(Spec.INF_POINT)],
+            blob_versioned_hashes=[Hash(Spec.kzg_to_versioned_hash(Spec.INF_POINT))],
+        )
+        tx.rlp_override = network_wrapped_tx.rlp()
 
     return tx

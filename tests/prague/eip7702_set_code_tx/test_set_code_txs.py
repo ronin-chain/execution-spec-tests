@@ -38,7 +38,7 @@ from ethereum_test_tools import (
 from ethereum_test_tools import Macros as Om
 from ethereum_test_tools import Opcodes as Op
 from ethereum_test_tools.eof.v1 import Container, Section
-from ethereum_test_types import TransactionReceipt
+from ethereum_test_types import TransactionDefaults, TransactionReceipt
 
 from .helpers import AddressType
 from .spec import Spec, ref_spec_7702
