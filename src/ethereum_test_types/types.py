@@ -293,6 +293,10 @@ class Alloc(BaseAlloc):
         """Send a transaction and wait for it to be included in a block."""
         raise NotImplementedError("send_transaction_and_wait is not implemented in the base class")
 
+    def block_number(self):
+        """Return the block number of the allocation."""
+        raise NotImplementedError("block_number is not implemented in the base class")
+
 
 DEFAULT_BASE_FEE = 1_500_000_000
 

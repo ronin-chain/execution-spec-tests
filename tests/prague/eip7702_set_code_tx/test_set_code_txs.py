@@ -2623,7 +2623,7 @@ def test_set_code_to_system_contract(
     # Fabricate the payload for the system contract
     match system_contract:
         case Address(0x0000F90827F1C53A10CB7A02335B175320002935):  # EIP-2935
-            caller_payload = Hash(0)
+            caller_payload = Hash(pre.block_number() - 1)
             caller_code_storage[call_return_data_size_slot] = 32
         case _:
             raise ValueError(f"Not implemented system contract: {system_contract}")
