@@ -372,5 +372,26 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
                     item.add_marker(mark)
             elif marker.name == "valid_at_transition_to":
                 item.add_marker(pytest.mark.skip(reason="transition tests not executable"))
+            elif marker.name == pytest.mark.pre_alloc_modify.name:
+                item.add_marker(pytest.mark.skip(reason="modified pre-alloc tests not executable"))
+            elif marker.name == pytest.mark.high_fee.name:
+                item.add_marker(pytest.mark.skip(reason="high fee tests not executable"))
         if "yul" in item.fixturenames:  # type: ignore
             item.add_marker(pytest.mark.yul_test)
+
+        # Skip tests that conflict with Ronin
+        if "test_pointer_to_eof" in item.name:
+            item.add_marker(pytest.mark.skip(reason="This test is not available until Osaka"))
+        elif "precompile_0x0000000000000000000000000000000000000011" in item.name:
+            item.add_marker(pytest.mark.skip(reason="Ronin defined 0x11 in genesis"))
+        elif (
+            "test_pointer_resets_an_empty_code_account_with_storage" in item.name
+            or "test_authorization_reusing_nonce" in item.name
+        ):
+            item.add_marker(pytest.mark.skip(reason="This test uses duplicate auth in setcode tx"))
+        elif "test_nonce_validity" in item.name:
+            item.add_marker(
+                pytest.mark.skip(reason="nonce parameter is not supported for execute")
+            )
+        elif "test_many_delegations" in item.name:
+            item.add_marker(pytest.mark.skip(reason="This test needs high gas"))
