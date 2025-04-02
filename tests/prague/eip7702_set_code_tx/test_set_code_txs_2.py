@@ -528,8 +528,8 @@ def test_gas_diff_pointer_vs_direct_call(
     """
     env = Environment()
 
-    sender = pre.fund_eoa()
-    pointer_a = pre.fund_eoa()
+    sender = pre.fund_eoa(10**19)
+    pointer_a = pre.fund_eoa(10**19)
     call_worked = 1
     gas_costs: GasCosts = fork.gas_costs()
 
@@ -814,7 +814,7 @@ def test_pointer_to_static(state_test: StateTestFiller, pre: Alloc):
         code=Op.SSTORE(
             storage.store_next(0, "static_call"),
             Op.STATICCALL(
-                gas=1_000_000, address=contract_b, args_size=32, ret_offset=1000, ret_size=32
+                gas=900_000, address=contract_b, args_size=32, ret_offset=1000, ret_size=32
             ),
         )
         + Op.SSTORE(storage.store_next(1, "call_worked"), 1)
@@ -860,7 +860,7 @@ def test_static_to_pointer(state_test: StateTestFiller, pre: Alloc):
         code=Op.SSTORE(
             storage.store_next(0, "static_call"),
             Op.STATICCALL(
-                gas=1_000_000, address=pointer_a, args_size=32, ret_offset=1000, ret_size=32
+                gas=900_000, address=pointer_a, args_size=32, ret_offset=1000, ret_size=32
             ),
         )
         + Op.SSTORE(storage.store_next(1, "call_worked"), 1)
@@ -1547,7 +1547,7 @@ def test_pointer_resets_an_empty_code_account_with_storage(
 
     This one is a little messy.
     """
-    sender = pre.fund_eoa()
+    sender = pre.fund_eoa(10**19)
     pointer = pre.fund_eoa(amount=0)
     pointer_storage = Storage()
     sender_storage = Storage()
