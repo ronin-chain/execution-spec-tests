@@ -352,6 +352,10 @@ class Alloc(BaseAlloc):
         """Send a transaction and wait for it to be included in a block."""
         self._eth_rpc.send_wait_transaction(tx.with_signature_and_sender())
 
+    def block_number(self):
+        """Return the current block number."""
+        return self._eth_rpc.get_block_number()
+
 
 @pytest.fixture(autouse=True)
 def evm_code_type(request: pytest.FixtureRequest) -> EVMCodeType:

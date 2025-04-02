@@ -254,6 +254,10 @@ class Alloc(BaseAlloc):
         """Send a transaction and wait for it to be mined."""
         raise NotImplementedError("send_wait_transaction is not implemented in filler pre-alloc")
 
+    def block_number(self):
+        """Return the current block number."""
+        return 0
+
 
 @pytest.fixture(scope="session")
 def alloc_mode(request: pytest.FixtureRequest) -> AllocMode:
