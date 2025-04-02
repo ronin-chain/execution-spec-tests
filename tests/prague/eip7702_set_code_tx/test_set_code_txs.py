@@ -2619,24 +2619,10 @@ def test_set_code_to_system_contract(
 
     call_value = 0
 
-    # Setup the initial storage of the account to mimic the system contract if required
-    match system_contract:
-        case Address(0x00000000219AB540356CBB839CBE05303D7705FA):  # EIP-6110
-            # Deposit contract needs specific storage values, so we set them on the account
-            auth_signer = pre.fund_eoa(
-                auth_account_start_balance, storage=deposit_contract_initial_storage()
-            )
-        case Address(0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02):  # EIP-4788
-            auth_signer = pre.fund_eoa(auth_account_start_balance, storage=Storage({1: 1}))
-        case _:
-            # Pre-fund without storage
-            auth_signer = pre.fund_eoa(auth_account_start_balance)
+    auth_signer = pre.fund_eoa(auth_account_start_balance)
 
     # Fabricate the payload for the system contract
     match system_contract:
-        case Address(0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02):  # EIP-4788
-            caller_payload = Hash(1)
-            caller_code_storage[call_return_data_size_slot] = 32
         case Address(0x0000F90827F1C53A10CB7A02335B175320002935):  # EIP-2935
             caller_payload = Hash(0)
             caller_code_storage[call_return_data_size_slot] = 32
