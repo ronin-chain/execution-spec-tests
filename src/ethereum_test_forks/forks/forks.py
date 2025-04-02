@@ -992,7 +992,7 @@ class Cancun(Shanghai):
     @classmethod
     def system_contracts(cls, block_number: int = 0, timestamp: int = 0) -> List[Address]:
         """Cancun introduces the system contract for EIP-4788."""
-        return [Address(0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02)]
+        return []
 
     @classmethod
     def pre_allocation_blockchain(cls) -> Mapping:
@@ -1091,12 +1091,9 @@ class Prague(Cancun):
     @classmethod
     def system_contracts(cls, block_number: int = 0, timestamp: int = 0) -> List[Address]:
         """Prague introduces the system contracts for EIP-6110, EIP-7002, EIP-7251 and EIP-2935."""
-        return [
-            Address(0x00000000219AB540356CBB839CBE05303D7705FA),
-            Address(0x00000961EF480EB55E80D19AD83579A64C007002),
-            Address(0x0000BBDDC7CE488642FB579F8B00F3A590007251),
-            Address(0x0000F90827F1C53A10CB7A02335B175320002935),
-        ] + super(Prague, cls).system_contracts(block_number, timestamp)
+        return [Address(0x0000F90827F1C53A10CB7A02335B175320002935)] + super(
+            Prague, cls
+        ).system_contracts(block_number, timestamp)
 
     @classmethod
     def max_request_type(cls, block_number: int = 0, timestamp: int = 0) -> int:
