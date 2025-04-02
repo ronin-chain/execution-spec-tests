@@ -29,6 +29,7 @@ from ethereum_test_tools import (
     extend_with_defaults,
 )
 from ethereum_test_tools import Opcodes as Op
+from ethereum_test_types.types import TransactionDefaults
 
 from .helpers import AddressType, ChainIDType
 from .spec import Spec, ref_spec_7702
@@ -198,7 +199,7 @@ def authorization_list_with_properties(
     re_authorize: bool,
 ) -> List[AuthorizationWithProperties]:
     """Fixture to return the authorization-list-with-properties for the given case."""
-    chain_id = 0 if chain_id_type == ChainIDType.GENERIC else 1
+    chain_id = 0 if chain_id_type == ChainIDType.GENERIC else TransactionDefaults.chain_id
     if authorization_invalidity_type == AuthorizationInvalidityType.INVALID_CHAIN_ID:
         chain_id = 2
 
@@ -625,6 +626,7 @@ def gas_test_parameter_args(
                     "signer_type": SignerType.SINGLE_SIGNER,
                     "authorizations_count": many_authorizations_count,
                 },
+                marks=pytest.mark.high_fee,
                 id="many_valid_authorizations_single_signer",
             ),
             pytest.param(
@@ -632,6 +634,7 @@ def gas_test_parameter_args(
                     "signer_type": SignerType.MULTIPLE_SIGNERS,
                     "authorizations_count": many_authorizations_count,
                 },
+                marks=pytest.mark.high_fee,
                 id="many_valid_authorizations_multiple_signers",
             ),
             pytest.param(
@@ -640,6 +643,7 @@ def gas_test_parameter_args(
                     "authorization_invalidity_type": AuthorizationInvalidityType.REPEATED_NONCE,
                     "authorizations_count": many_authorizations_count,
                 },
+                marks=pytest.mark.high_fee,
                 id="first_valid_then_many_duplicate_authorizations",
             ),
         ]
