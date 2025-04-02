@@ -269,7 +269,7 @@ def test_set_code_to_sstore_then_sload(
 ):
     """Test the executing a simple SSTORE then SLOAD in two separate set-code transactions."""
     auth_signer = pre.fund_eoa(auth_account_start_balance)
-    sender = pre.fund_eoa()
+    sender = pre.fund_eoa(10**19)
 
     storage_key_1 = 0x1
     storage_key_2 = 0x2
@@ -738,7 +738,10 @@ def test_set_code_call_set_code(
     set_code_2_success = storage_2.store_next(not static_call)
 
     set_code_1 = (
-        Op.SSTORE(set_code_1_call_result_slot, call_opcode(address=auth_signer_2, value=value))
+        Op.SSTORE(
+            set_code_1_call_result_slot,
+            call_opcode(gas=900_000, address=auth_signer_2, value=value),
+        )
         + Op.SSTORE(set_code_1_success, 1)
         + Op.STOP
     )
@@ -2773,8 +2776,8 @@ def test_eoa_tx_after_set_code(
                     gas_limit=1_000_000,
                     to=auth_signer,
                     value=0,
-                    max_fee_per_gas=1_000,
-                    max_priority_fee_per_gas=1_000,
+                    max_fee_per_gas=1000000000,
+                    max_priority_fee_per_gas=1000000000,
                 ),
             )
         case 3:
@@ -2785,8 +2788,8 @@ def test_eoa_tx_after_set_code(
                     gas_limit=1_000_000,
                     to=auth_signer,
                     value=0,
-                    max_fee_per_gas=1_000,
-                    max_priority_fee_per_gas=1_000,
+                    max_fee_per_gas=1000000000,
+                    max_priority_fee_per_gas=1000000000,
                     max_fee_per_blob_gas=fork.min_base_fee_per_blob_gas() * 10,
                     blob_versioned_hashes=add_kzg_version(
                         [Hash(1)],
@@ -2834,7 +2837,7 @@ def test_reset_code(
     set_code_2 = Op.SSTORE(2, Op.ADD(Op.SLOAD(2), 1)) + Op.STOP
     set_code_2_address = pre.deploy_contract(set_code_2)
 
-    sender = pre.fund_eoa()
+    sender = pre.fund_eoa(10**19)
 
     txs = [
         Transaction(
@@ -3315,7 +3318,7 @@ def test_many_delegations(
     signers = [pre.fund_eoa(signer_balance) for _ in range(delegation_count)]
 
     tx = Transaction(
-        gas_limit=1_000_000,
+        gas_limit=20_000_000,
         to=entry_address,
         value=0,
         authorization_list=[
