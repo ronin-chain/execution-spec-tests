@@ -3345,12 +3345,13 @@ def test_invalid_transaction_after_authorization(
     included in a prior transaction.
     """
     auth_signer = pre.fund_eoa()
+    empty_account = pre.fund_eoa(0)
 
     txs = [
         Transaction(
             sender=pre.fund_eoa(),
             gas_limit=1_000_000,
-            to=Address(0),
+            to=empty_account,
             value=0,
             authorization_list=[
                 AuthorizationTuple(
@@ -3364,7 +3365,7 @@ def test_invalid_transaction_after_authorization(
             sender=auth_signer,
             nonce=0,
             gas_limit=1_000_000,
-            to=Address(0),
+            to=empty_account,
             value=1,
             error=TransactionException.NONCE_MISMATCH_TOO_LOW,
         ),
@@ -3379,7 +3380,7 @@ def test_invalid_transaction_after_authorization(
             )
         ],
         post={
-            Address(0): None,
+            empty_account: None,
         },
     )
 
