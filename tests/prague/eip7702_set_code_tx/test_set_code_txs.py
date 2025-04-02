@@ -38,6 +38,7 @@ from ethereum_test_tools import (
 from ethereum_test_tools import Macros as Om
 from ethereum_test_tools import Opcodes as Op
 from ethereum_test_tools.eof.v1 import Container, Section
+from ethereum_test_types.types import TransactionDefaults
 
 from .helpers import AddressType
 from .spec import Spec, ref_spec_7702
@@ -2038,7 +2039,7 @@ def test_set_code_using_chain_specific_id(
             AuthorizationTuple(
                 address=set_code_to_address,
                 nonce=0,
-                chain_id=1,
+                chain_id=TransactionDefaults.chain_id,
                 signer=auth_signer,
             )
         ],
@@ -2092,7 +2093,7 @@ def test_set_code_using_valid_synthetic_signatures(
     authorization_tuple = AuthorizationTuple(
         address=set_code_to_address,
         nonce=0,
-        chain_id=1,
+        chain_id=TransactionDefaults.chain_id,
         v=v,
         r=r,
         s=s,
@@ -2173,7 +2174,7 @@ def test_valid_tx_invalid_auth_signature(
     authorization_tuple = AuthorizationTuple(
         address=0,
         nonce=0,
-        chain_id=1,
+        chain_id=TransactionDefaults.chain_id,
         v=v,
         r=r,
         s=s,
@@ -2215,7 +2216,7 @@ def test_signature_s_out_of_range(
     authorization_tuple = AuthorizationTuple(
         address=set_code_to_address,
         nonce=0,
-        chain_id=1,
+        chain_id=TransactionDefaults.chain_id,
         signer=auth_signer,
     )
 
