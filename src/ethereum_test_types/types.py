@@ -995,7 +995,11 @@ class Transaction(TransactionGeneric[HexNumber], TransactionTransitionToolConver
     def payload_body_without_blob(self) -> List[Any]:
         """Returns the list of values included in the transaction body, ignoring blob fields."""
         if self.ty == 3 and self.wrapped_blob_transaction:
-            return self.signing_envelope + [Uint(self.v), Uint(self.r), Uint(self.s)]
+            # Check that v, r, s are not None before converting to Uint
+            v = Uint(self.v) if self.v is not None else Uint(0)  # Default to 0.
+            r = Uint(self.r) if self.r is not None else Uint(0)
+            s = Uint(self.s) if self.s is not None else Uint(0)
+            return self.signing_envelope + [v, r, s]
         return self.payload_body
 
     @cached_property

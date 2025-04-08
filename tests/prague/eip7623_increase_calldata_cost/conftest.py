@@ -335,10 +335,10 @@ def tx(
     )
 
     if tx.ty == 3:
-        tx.blobs = [bytes(4096 * 32)]
-        tx.blob_kzg_commitments = [Spec.INF_POINT]
-        tx.blob_kzg_proofs = [Spec.INF_POINT]
-        tx.blob_versioned_hashes = [Spec.kzg_to_versioned_hash(Spec.INF_POINT)]
+        tx.blobs = [Bytes(bytes(4096 * 32))]
+        tx.blob_kzg_commitments = [Bytes(Spec.INF_POINT)]
+        tx.blob_kzg_proofs = [Bytes(Spec.INF_POINT)]
+        tx.blob_versioned_hashes = [Hash(Spec.kzg_to_versioned_hash(Spec.INF_POINT))]
         tx.wrapped_blob_transaction = True
 
     return tx
