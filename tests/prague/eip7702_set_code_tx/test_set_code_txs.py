@@ -5,6 +5,7 @@ abstract: Tests use of set-code transactions from [EIP-7702: Set EOA account cod
 
 from hashlib import sha256
 from itertools import count
+from typing import List
 
 import pytest
 
@@ -2672,12 +2673,24 @@ def test_set_code_to_system_contract(
     if tx_type in [0, 3]
     else None,
 )
+@pytest.mark.parametrize(
+    "same_block",
+    [
+        pytest.param(
+            True,
+            marks=[pytest.mark.execute(pytest.mark.skip("duplicate scenario for execute"))],
+            id="same_block",
+        ),
+        pytest.param(False, id="different_block"),
+    ],
+)
 def test_eoa_tx_after_set_code(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
     tx_type: int,
     fork: Fork,
     evm_code_type: EVMCodeType,
+    same_block: bool,
 ):
     """Test sending a transaction from an EOA after code has been set to the account."""
     auth_signer = pre.fund_eoa()
@@ -2685,47 +2698,46 @@ def test_eoa_tx_after_set_code(
     set_code = Op.SSTORE(1, Op.ADD(Op.SLOAD(1), 1)) + Op.STOP
     set_code_to_address = pre.deploy_contract(set_code)
 
-    txs = [
-        Transaction(
-            sender=pre.fund_eoa(),
-            gas_limit=1_000_000,
-            to=auth_signer,
-            value=0,
-            authorization_list=[
-                AuthorizationTuple(
-                    address=set_code_to_address,
-                    nonce=0,
-                    signer=auth_signer,
-                ),
-            ],
-        )
-    ]
+    first_eoa_tx = Transaction(
+        sender=pre.fund_eoa(),
+        gas_limit=500_000,
+        to=auth_signer,
+        value=0,
+        authorization_list=[
+            AuthorizationTuple(
+                address=set_code_to_address,
+                nonce=0,
+                signer=auth_signer,
+            ),
+        ],
+    )
     auth_signer.nonce += 1  # type: ignore
 
+    follow_up_eoa_txs: List[Transaction] = []
     match tx_type:
         case 0:
-            txs.append(
-                Transaction(
-                    type=tx_type,
-                    sender=auth_signer,
-                    gas_limit=1_000_000,
-                    to=auth_signer,
-                    value=0,
-                    protected=True,
-                ),
-            )
-            txs.append(
-                Transaction(
-                    type=tx_type,
-                    sender=auth_signer,
-                    gas_limit=1_000_000,
-                    to=auth_signer,
-                    value=0,
-                    protected=False,
-                ),
+            follow_up_eoa_txs.extend(
+                [
+                    Transaction(
+                        type=tx_type,
+                        sender=auth_signer,
+                        gas_limit=500_000,
+                        to=auth_signer,
+                        value=0,
+                        protected=True,
+                    ),
+                    Transaction(
+                        type=tx_type,
+                        sender=auth_signer,
+                        gas_limit=500_000,
+                        to=auth_signer,
+                        value=0,
+                        protected=False,
+                    ),
+                ]
             )
         case 1:
-            txs.append(
+            follow_up_eoa_txs.append(
                 Transaction(
                     type=tx_type,
                     sender=auth_signer,
@@ -2738,10 +2750,10 @@ def test_eoa_tx_after_set_code(
                             storage_keys=[1],
                         )
                     ],
-                ),
+                )
             )
         case 2:
-            txs.append(
+            follow_up_eoa_txs.append(
                 Transaction(
                     type=tx_type,
                     sender=auth_signer,
@@ -2753,7 +2765,7 @@ def test_eoa_tx_after_set_code(
                 ),
             )
         case 3:
-            txs.append(
+            follow_up_eoa_txs.append(
                 Transaction(
                     type=tx_type,
                     sender=auth_signer,
@@ -2767,14 +2779,21 @@ def test_eoa_tx_after_set_code(
                         [Hash(1)],
                         1,
                     ),
-                ),
+                )
             )
         case _:
             raise ValueError(f"Unsupported tx type: {tx_type}, test needs update")
 
+    if same_block:
+        blocks = [Block(txs=[first_eoa_tx] + follow_up_eoa_txs)]
+    else:
+        blocks = [
+            Block(txs=[first_eoa_tx]),
+            Block(txs=follow_up_eoa_txs),
+        ]
     blockchain_test(
         pre=pre,
-        blocks=[Block(txs=txs)],
+        blocks=blocks,
         post={
             auth_signer: Account(
                 nonce=3 if tx_type == 0 else 2,

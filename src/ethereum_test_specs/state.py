@@ -206,7 +206,7 @@ class StateTest(BaseTest):
         """Generate the list of test fixtures."""
         if execute_format == TransactionPost:
             return TransactionPost(
-                transactions=[self.tx],
+                blocks=[[self.tx]],
                 post=self.post,
             )
         raise Exception(f"Unsupported execute format: {execute_format}")
