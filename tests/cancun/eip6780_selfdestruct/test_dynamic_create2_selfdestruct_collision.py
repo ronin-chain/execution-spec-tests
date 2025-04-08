@@ -293,12 +293,9 @@ def test_dynamic_create2_selfdestruct_collision(
         + Op.SSTORE(code_worked, 1)
     )
     executor_contract_init_balance = 100_000
-    executor_contract_init_storage:\
-        Dict[Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]] =\
-        {
-            first_create2_result: 0xFF,
-            second_create2_result: 0xFF
-        }
+    executor_contract_init_storage: Dict[
+        Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]
+    ] = {first_create2_result: 0xFF, second_create2_result: 0xFF}
     executor_contract_address = pre.deploy_contract(
         executor_contract_code,
         balance=executor_contract_init_balance,
@@ -445,11 +442,9 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
         + Op.SSTORE(code_worked, 1)
     )
     executor_contract_first_init_balance = 100_000
-    executor_contract_first_init_storage:\
-        Dict[Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]] = \
-        {
-            first_create2_result: 0xFF
-        }
+    executor_contract_first_init_storage: Dict[
+        Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]
+    ] = {first_create2_result: 0xFF}
 
     executor_contract_first_address = pre.deploy_contract(
         executor_contract_first_code,
@@ -473,11 +468,9 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
         + Op.SSTORE(code_worked, 1)
     )
     executor_contract_second_init_balance = 100_000
-    executor_contract_second_init_storage:\
-        Dict[Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]] =\
-        {
-            second_create2_result: 0xFF
-        }
+    executor_contract_second_init_storage: Dict[
+        Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]
+    ] = {second_create2_result: 0xFF}
     executor_contract_second_address = pre.deploy_contract(
         executor_contract_second_code,
         balance=executor_contract_second_init_balance,
@@ -733,12 +726,9 @@ def test_dynamic_create2_selfdestruct_collision_multi_tx(
     )
     executor_contract_init_balance = 100_000
 
-    executor_contract_init_storage:\
-        Dict[Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]] = \
-        {
-            first_create2_result: 0xFF,
-            second_create2_result: 0xFF,
-        }
+    executor_contract_init_storage: Dict[
+        Union[str, int, bytes, SupportsBytes], Union[str, int, bytes, SupportsBytes]
+    ] = {first_create2_result: 0xFF, second_create2_result: 0xFF}
     executor_contract_address = pre.deploy_contract(
         executor_contract_code,
         balance=executor_contract_init_balance,
