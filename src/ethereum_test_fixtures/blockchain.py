@@ -38,8 +38,6 @@ from ethereum_test_types.types import (
     Transaction,
     TransactionFixtureConverter,
     TransactionGeneric,
-    Withdrawal,
-    WithdrawalGeneric,
 )
 
 from .base import BaseFixture
@@ -108,17 +106,12 @@ class FixtureHeader(CamelModel):
         ]
         | None
     ) = Field(None)
-    withdrawals_root: Annotated[Hash, HeaderForkRequirement("withdrawals")] | None = Field(None)
     blob_gas_used: (
         Annotated[ZeroPaddedHexNumber, HeaderForkRequirement("blob_gas_used")] | None
     ) = Field(None)
     excess_blob_gas: (
         Annotated[ZeroPaddedHexNumber, HeaderForkRequirement("excess_blob_gas")] | None
     ) = Field(None)
-    parent_beacon_block_root: Annotated[Hash, HeaderForkRequirement("beacon_root")] | None = Field(
-        None
-    )
-    requests_hash: Annotated[Hash, HeaderForkRequirement("requests")] | None = Field(None)
 
     fork: Fork | None = Field(None, exclude=True)
 
@@ -200,23 +193,20 @@ class FixtureExecutionPayload(CamelModel):
     block_hash: Hash
 
     transactions: List[Bytes]
-    withdrawals: List[Withdrawal] | None = None
 
     @classmethod
     def from_fixture_header(
         cls,
         header: FixtureHeader,
         transactions: List[Transaction],
-        withdrawals: List[Withdrawal] | None,
     ) -> "FixtureExecutionPayload":
         """
         Return FixtureExecutionPayload from a FixtureHeader, a list
-        of transactions and a list of withdrawals.
+        of transactions.
         """
         return cls(
             **header.model_dump(exclude={"rlp"}, exclude_none=True),
             transactions=[tx.rlp for tx in transactions],
-            withdrawals=withdrawals,
         )
 
 
@@ -269,7 +259,6 @@ class FixtureEngineNewPayload(CamelModel):
         fork: Fork,
         header: FixtureHeader,
         transactions: List[Transaction],
-        withdrawals: List[Withdrawal] | None,
         requests: List[Bytes] | None,
         **kwargs,
     ) -> "FixtureEngineNewPayload":
@@ -283,7 +272,6 @@ class FixtureEngineNewPayload(CamelModel):
         execution_payload = FixtureExecutionPayload.from_fixture_header(
             header=header,
             transactions=transactions,
-            withdrawals=withdrawals,
         )
 
         params: List[Any] = [execution_payload]
@@ -292,12 +280,6 @@ class FixtureEngineNewPayload(CamelModel):
             if blob_hashes is None:
                 raise ValueError(f"Blob hashes are required for ${fork}.")
             params.append(blob_hashes)
-
-        if fork.engine_new_payload_beacon_root(header.number, header.timestamp):
-            parent_beacon_block_root = header.parent_beacon_block_root
-            if parent_beacon_block_root is None:
-                raise ValueError(f"Parent beacon block root is required for ${fork}.")
-            params.append(parent_beacon_block_root)
 
         if fork.engine_new_payload_requests(header.number, header.timestamp):
             if requests is None:
@@ -342,25 +324,12 @@ class FixtureTransaction(TransactionFixtureConverter, TransactionGeneric[ZeroPad
         return cls(**tx.model_dump())
 
 
-class FixtureWithdrawal(WithdrawalGeneric[ZeroPaddedHexNumber]):
-    """
-    Structure to represent a single withdrawal of a validator's balance from
-    the beacon chain in the output fixture.
-    """
-
-    @classmethod
-    def from_withdrawal(cls, w: WithdrawalGeneric) -> "FixtureWithdrawal":
-        """Return FixtureWithdrawal from a Withdrawal."""
-        return cls(**w.model_dump())
-
-
 class FixtureBlockBase(CamelModel):
     """Representation of an Ethereum block within a test Fixture without RLP bytes."""
 
     header: FixtureHeader = Field(..., alias="blockHeader")
     txs: List[FixtureTransaction] = Field(default_factory=list, alias="transactions")
     ommers: List[FixtureHeader] = Field(default_factory=list, alias="uncleHeaders")
-    withdrawals: List[FixtureWithdrawal] | None = None
 
     @computed_field(alias="blocknumber")  # type: ignore[misc]
     @cached_property
@@ -375,9 +344,6 @@ class FixtureBlockBase(CamelModel):
             [tx.serializable_list for tx in txs],
             self.ommers,  # TODO: This is incorrect, and we probably need to serialize the ommers
         ]
-
-        if self.withdrawals is not None:
-            block.append([w.to_serializable_list() for w in self.withdrawals])
 
         return FixtureBlock(
             **self.model_dump(),

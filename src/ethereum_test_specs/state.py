@@ -62,8 +62,6 @@ class StateTest(BaseTest):
         # Modify values to the proper values for the genesis block
         # TODO: All of this can be moved to a new method in `Fork`
         updated_values: Dict[str, Any] = {
-            "withdrawals": None,
-            "parent_beacon_block_root": None,
             "number": self.env.number - 1,
         }
         if self.env.excess_blob_gas:
@@ -88,8 +86,6 @@ class StateTest(BaseTest):
                 difficulty=self.env.difficulty,
                 gas_limit=self.env.gas_limit,
                 extra_data=self.env.extra_data,
-                withdrawals=self.env.withdrawals,
-                parent_beacon_block_root=self.env.parent_beacon_block_root,
                 txs=[self.tx],
                 ommers=[],
                 exception=self.tx.error,

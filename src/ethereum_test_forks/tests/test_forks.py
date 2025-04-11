@@ -65,9 +65,6 @@ def test_transition_forks():
     assert BerlinToLondonAt5.header_base_fee_required(4, 0) is False
     assert BerlinToLondonAt5.header_base_fee_required(5, 0) is True
 
-    assert ParisToShanghaiAtTime15k.header_withdrawals_required(0, 14_999) is False
-    assert ParisToShanghaiAtTime15k.header_withdrawals_required(0, 15_000) is True
-
     assert ParisToShanghaiAtTime15k.engine_new_payload_version(0, 14_999) == 1
     assert ParisToShanghaiAtTime15k.engine_new_payload_version(0, 15_000) == 2
 
@@ -122,9 +119,6 @@ def test_forks():
     # Transition forks too
     assert cast(Fork, BerlinToLondonAt5).header_base_fee_required(4, 0) is False
     assert cast(Fork, BerlinToLondonAt5).header_base_fee_required(5, 0) is True
-    assert cast(Fork, ParisToShanghaiAtTime15k).header_withdrawals_required(0, 14_999) is False
-    assert cast(Fork, ParisToShanghaiAtTime15k).header_withdrawals_required(0, 15_000) is True
-    assert cast(Fork, ParisToShanghaiAtTime15k).header_withdrawals_required() is True
 
 
 def test_fork_comparison():

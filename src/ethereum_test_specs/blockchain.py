@@ -34,12 +34,11 @@ from ethereum_test_fixtures.blockchain import (
     FixtureEngineNewPayload,
     FixtureHeader,
     FixtureTransaction,
-    FixtureWithdrawal,
     InvalidFixtureBlock,
 )
 from ethereum_test_fixtures.common import FixtureBlobSchedule
 from ethereum_test_forks import Fork
-from ethereum_test_types import Alloc, Environment, Removable, Requests, Transaction, Withdrawal
+from ethereum_test_types import Alloc, Environment, Removable, Requests, Transaction
 
 from .base import BaseTest, verify_result
 from .debugging import print_traces
@@ -104,11 +103,8 @@ class Header(CamelModel):
     prev_randao: Hash | None = None
     nonce: HeaderNonce | None = None
     base_fee_per_gas: Removable | HexNumber | None = None
-    withdrawals_root: Removable | Hash | None = None
     blob_gas_used: Removable | HexNumber | None = None
     excess_blob_gas: Removable | HexNumber | None = None
-    parent_beacon_block_root: Removable | Hash | None = None
-    requests_hash: Removable | Hash | None = None
 
     REMOVE_FIELD: ClassVar[Removable] = Removable()
     """
@@ -141,14 +137,6 @@ class Header(CamelModel):
             Removable: lambda x: None,
         },
     )
-
-    @field_validator("withdrawals_root", mode="before")
-    @classmethod
-    def validate_withdrawals_root(cls, value):
-        """Convert a list of withdrawals into the withdrawals root hash."""
-        if isinstance(value, list):
-            return Withdrawal.list_root(value)
-        return value
 
     def apply(self, target: FixtureHeader) -> FixtureHeader:
         """Produce a fixture header copy with the set values from the modifier."""
@@ -215,10 +203,6 @@ class Block(Header):
     """
     List of ommer headers included in the block.
     """
-    withdrawals: List[Withdrawal] | None = None
-    """
-    List of withdrawals to perform for this block.
-    """
     requests: List[Bytes] | None = None
     """
     Custom list of requests to embed in this block.
@@ -248,13 +232,10 @@ class Block(Header):
         )
         if not isinstance(self.base_fee_per_gas, Removable):
             new_env_values["base_fee_per_gas"] = self.base_fee_per_gas
-        new_env_values["withdrawals"] = self.withdrawals
         if not isinstance(self.excess_blob_gas, Removable):
             new_env_values["excess_blob_gas"] = self.excess_blob_gas
         if not isinstance(self.blob_gas_used, Removable):
             new_env_values["blob_gas_used"] = self.blob_gas_used
-        if not isinstance(self.parent_beacon_block_root, Removable):
-            new_env_values["parent_beacon_block_root"] = self.parent_beacon_block_root
         """
         These values are required, but they depend on the previous environment,
         so they can be calculated here.
@@ -303,12 +284,6 @@ class BlockchainTest(BaseTest):
     ) -> Tuple[Alloc, FixtureBlock]:
         """Create a genesis block from the blockchain test definition."""
         env = genesis_environment.set_fork_requirements(fork)
-        assert env.withdrawals is None or len(env.withdrawals) == 0, (
-            "withdrawals must be empty at genesis"
-        )
-        assert env.parent_beacon_block_root is None or env.parent_beacon_block_root == Hash(0), (
-            "parent_beacon_block_root must be empty at genesis"
-        )
 
         pre_alloc = Alloc.merge(
             Alloc.model_validate(fork.pre_allocation_blockchain()),
@@ -336,11 +311,6 @@ class BlockchainTest(BaseTest):
             base_fee_per_gas=env.base_fee_per_gas,
             blob_gas_used=env.blob_gas_used,
             excess_blob_gas=env.excess_blob_gas,
-            withdrawals_root=(
-                Withdrawal.list_root(env.withdrawals) if env.withdrawals is not None else None
-            ),
-            parent_beacon_block_root=env.parent_beacon_block_root,
-            requests_hash=Requests() if fork.header_requests_required(0, 0) else None,
             fork=fork,
         )
 
@@ -348,7 +318,6 @@ class BlockchainTest(BaseTest):
             pre_alloc,
             FixtureBlockBase(
                 header=genesis,
-                withdrawals=None if env.withdrawals is None else [],
             ).with_rlp(txs=[]),
         )
 
@@ -369,9 +338,10 @@ class BlockchainTest(BaseTest):
                 + "block's rlp is supplied and the block is not supposed "
                 + "to produce an exception"
             )
-
+        print(000)
         env = block.set_environment(previous_env)
         env = env.set_fork_requirements(fork)
+        print(11111111111111111)
 
         txs = [tx.with_signature_and_sender() for tx in block.txs]
 
@@ -398,6 +368,8 @@ class BlockchainTest(BaseTest):
             debug_output_path=self.get_next_transition_tool_output_path(),
             slow_request=slow,
         )
+
+        print(123123124141414)
 
         try:
             rejected_txs = verify_transactions(
@@ -517,6 +489,7 @@ class BlockchainTest(BaseTest):
         alloc = pre
         env = environment_from_parent_header(genesis.header)
         head = genesis.header.block_hash
+        print(12312312312)
 
         for block in self.blocks:
             if block.rlp is None:
@@ -536,11 +509,6 @@ class BlockchainTest(BaseTest):
                     header=header,
                     txs=[FixtureTransaction.from_transaction(tx) for tx in txs],
                     ommers=[],
-                    withdrawals=(
-                        [FixtureWithdrawal.from_withdrawal(w) for w in new_env.withdrawals]
-                        if new_env.withdrawals is not None
-                        else None
-                    ),
                     fork=fork,
                 ).with_rlp(txs=txs)
                 if block.exception is None:
@@ -626,8 +594,6 @@ class BlockchainTest(BaseTest):
                         fork=fork,
                         header=header,
                         transactions=txs,
-                        withdrawals=new_env.withdrawals,
-                        requests=requests,
                         validation_error=block.exception,
                         error_code=block.engine_api_error_code,
                     )
@@ -672,7 +638,6 @@ class BlockchainTest(BaseTest):
                 fork=fork,
                 header=sync_header,
                 transactions=[],
-                withdrawals=[],
                 requests=requests,
                 validation_error=None,
                 error_code=None,

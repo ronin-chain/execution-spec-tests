@@ -24,7 +24,6 @@ fixture_header_ones = FixtureHeader(
     prev_randao=Hash(1),
     nonce=HeaderNonce(1),
     base_fee_per_gas=1,
-    withdrawals_root=Hash(1),
     blob_gas_used=1,
     excess_blob_gas=1,
     # hash=Hash(1),
@@ -64,8 +63,6 @@ fixture_header_ones = FixtureHeader(
         ),
         pytest.param(
             fixture_header_ones,
-            Header(withdrawals_root=Header.REMOVE_FIELD),  # state_root is not removable
-            fixture_header_ones.copy(withdrawals_root=None),
             id="state_root_as_header_remove_field",
         ),
         pytest.param(

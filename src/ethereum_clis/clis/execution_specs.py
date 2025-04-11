@@ -77,8 +77,11 @@ class ExecutionSpecsTransitionTool(TransitionTool):
         """
         self.server_dir = TemporaryDirectory()
         self.server_file_path = Path(self.server_dir.name) / "t8n.sock"
+        print(f"Starting t8n-server at {self.server_file_path}")
         replaced_str = str(self.server_file_path).replace("/", "%2F")
         self.server_url = f"http+unix://{replaced_str}/"
+        print(f"t8n-server URL: {self.server_url}")
+        print(f"binary: {self.binary}")
         self.process = subprocess.Popen(
             args=[
                 str(self.binary),
@@ -87,6 +90,7 @@ class ExecutionSpecsTransitionTool(TransitionTool):
                 self.server_file_path,
             ],
         )
+        print(f"process: {self.process}")
         start = time.time()
         while True:
             if self.server_file_path.exists():
