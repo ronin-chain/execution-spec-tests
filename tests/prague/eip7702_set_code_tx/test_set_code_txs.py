@@ -38,6 +38,7 @@ from ethereum_test_tools import (
 from ethereum_test_tools import Macros as Om
 from ethereum_test_tools import Opcodes as Op
 from ethereum_test_tools.eof.v1 import Container, Section
+from ethereum_test_types.types import TransactionDefaults
 
 from .helpers import AddressType
 from .spec import Spec, ref_spec_7702
@@ -269,7 +270,7 @@ def test_set_code_to_sstore_then_sload(
 ):
     """Test the executing a simple SSTORE then SLOAD in two separate set-code transactions."""
     auth_signer = pre.fund_eoa(auth_account_start_balance)
-    sender = pre.fund_eoa()
+    sender = pre.fund_eoa(10**19)
 
     storage_key_1 = 0x1
     storage_key_2 = 0x2
@@ -738,7 +739,10 @@ def test_set_code_call_set_code(
     set_code_2_success = storage_2.store_next(not static_call)
 
     set_code_1 = (
-        Op.SSTORE(set_code_1_call_result_slot, call_opcode(address=auth_signer_2, value=value))
+        Op.SSTORE(
+            set_code_1_call_result_slot,
+            call_opcode(gas=900_000, address=auth_signer_2, value=value),
+        )
         + Op.SSTORE(set_code_1_success, 1)
         + Op.STOP
     )
@@ -2035,7 +2039,7 @@ def test_set_code_using_chain_specific_id(
             AuthorizationTuple(
                 address=set_code_to_address,
                 nonce=0,
-                chain_id=1,
+                chain_id=TransactionDefaults.chain_id,
                 signer=auth_signer,
             )
         ],
@@ -2089,7 +2093,7 @@ def test_set_code_using_valid_synthetic_signatures(
     authorization_tuple = AuthorizationTuple(
         address=set_code_to_address,
         nonce=0,
-        chain_id=1,
+        chain_id=TransactionDefaults.chain_id,
         v=v,
         r=r,
         s=s,
@@ -2170,7 +2174,7 @@ def test_valid_tx_invalid_auth_signature(
     authorization_tuple = AuthorizationTuple(
         address=0,
         nonce=0,
-        chain_id=1,
+        chain_id=TransactionDefaults.chain_id,
         v=v,
         r=r,
         s=s,
@@ -2212,7 +2216,7 @@ def test_signature_s_out_of_range(
     authorization_tuple = AuthorizationTuple(
         address=set_code_to_address,
         nonce=0,
-        chain_id=1,
+        chain_id=TransactionDefaults.chain_id,
         signer=auth_signer,
     )
 
@@ -2615,26 +2619,12 @@ def test_set_code_to_system_contract(
 
     call_value = 0
 
-    # Setup the initial storage of the account to mimic the system contract if required
-    match system_contract:
-        case Address(0x00000000219AB540356CBB839CBE05303D7705FA):  # EIP-6110
-            # Deposit contract needs specific storage values, so we set them on the account
-            auth_signer = pre.fund_eoa(
-                auth_account_start_balance, storage=deposit_contract_initial_storage()
-            )
-        case Address(0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02):  # EIP-4788
-            auth_signer = pre.fund_eoa(auth_account_start_balance, storage=Storage({1: 1}))
-        case _:
-            # Pre-fund without storage
-            auth_signer = pre.fund_eoa(auth_account_start_balance)
+    auth_signer = pre.fund_eoa(auth_account_start_balance)
 
     # Fabricate the payload for the system contract
     match system_contract:
-        case Address(0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02):  # EIP-4788
-            caller_payload = Hash(1)
-            caller_code_storage[call_return_data_size_slot] = 32
         case Address(0x0000F90827F1C53A10CB7A02335B175320002935):  # EIP-2935
-            caller_payload = Hash(0)
+            caller_payload = Hash(pre.block_number() - 1)
             caller_code_storage[call_return_data_size_slot] = 32
         case _:
             raise ValueError(f"Not implemented system contract: {system_contract}")
@@ -2773,8 +2763,9 @@ def test_eoa_tx_after_set_code(
                     gas_limit=1_000_000,
                     to=auth_signer,
                     value=0,
-                    max_fee_per_gas=1_000,
-                    max_priority_fee_per_gas=1_000,
+                    # Ronin requires minimum base fee is 1 gwei
+                    max_fee_per_gas=1000000000,
+                    max_priority_fee_per_gas=1000000000,
                 ),
             )
         case 3:
@@ -2785,8 +2776,9 @@ def test_eoa_tx_after_set_code(
                     gas_limit=1_000_000,
                     to=auth_signer,
                     value=0,
-                    max_fee_per_gas=1_000,
-                    max_priority_fee_per_gas=1_000,
+                    # Ronin requires minimum base fee is 1 gwei
+                    max_fee_per_gas=1000000000,
+                    max_priority_fee_per_gas=1000000000,
                     max_fee_per_blob_gas=fork.min_base_fee_per_blob_gas() * 10,
                     blob_versioned_hashes=add_kzg_version(
                         [Hash(1)],
@@ -2834,7 +2826,7 @@ def test_reset_code(
     set_code_2 = Op.SSTORE(2, Op.ADD(Op.SLOAD(2), 1)) + Op.STOP
     set_code_2_address = pre.deploy_contract(set_code_2)
 
-    sender = pre.fund_eoa()
+    sender = pre.fund_eoa(10**19)
 
     txs = [
         Transaction(
@@ -3315,7 +3307,7 @@ def test_many_delegations(
     signers = [pre.fund_eoa(signer_balance) for _ in range(delegation_count)]
 
     tx = Transaction(
-        gas_limit=1_000_000,
+        gas_limit=20_000_000,
         to=entry_address,
         value=0,
         authorization_list=[
@@ -3357,12 +3349,13 @@ def test_invalid_transaction_after_authorization(
     included in a prior transaction.
     """
     auth_signer = pre.fund_eoa()
+    empty_account = pre.fund_eoa(0)
 
     txs = [
         Transaction(
             sender=pre.fund_eoa(),
             gas_limit=1_000_000,
-            to=Address(0),
+            to=empty_account,
             value=0,
             authorization_list=[
                 AuthorizationTuple(
@@ -3376,7 +3369,7 @@ def test_invalid_transaction_after_authorization(
             sender=auth_signer,
             nonce=0,
             gas_limit=1_000_000,
-            to=Address(0),
+            to=empty_account,
             value=1,
             error=TransactionException.NONCE_MISMATCH_TOO_LOW,
         ),
@@ -3391,7 +3384,7 @@ def test_invalid_transaction_after_authorization(
             )
         ],
         post={
-            Address(0): None,
+            empty_account: None,
         },
     )
 
