@@ -7,7 +7,7 @@ import pytest
 from ethereum_test_base_types import AccessList, Address, TestPrivateKey, to_json
 from ethereum_test_base_types.pydantic import CopyValidateModel
 
-from ..types import Account, Alloc, Environment, Storage, Transaction, Withdrawal
+from ..types import Account, Alloc, Environment, Storage, Transaction
 
 
 def test_storage():
@@ -428,17 +428,6 @@ CHECKSUM_ADDRESS = "0x8a0A19589531694250d570040a0c4B74576919B8"
         ),
         pytest.param(
             True,
-            Withdrawal(index=0, validator_index=1, address=0x1234, amount=2),
-            {
-                "index": "0x0",
-                "validatorIndex": "0x1",
-                "address": "0x0000000000000000000000000000000000001234",
-                "amount": "0x2",
-            },
-            id="withdrawal",
-        ),
-        pytest.param(
-            True,
             Environment(),
             {
                 "currentCoinbase": "0x2adc25665018aa1fe0e6bc666dac8fc2697ff9ba",
@@ -466,7 +455,6 @@ CHECKSUM_ADDRESS = "0x8a0A19589531694250d570040a0c4B74576919B8"
                 parent_gas_used=0xB,
                 parent_gas_limit=0xC,
                 parent_ommers_hash=0xD,
-                withdrawals=[Withdrawal(index=0, validator_index=1, address=0x1234, amount=2)],
                 parent_blob_gas_used=0xE,
                 parent_excess_blob_gas=0xF,
                 blob_gas_used=0x10,
@@ -489,14 +477,6 @@ CHECKSUM_ADDRESS = "0x8a0A19589531694250d570040a0c4B74576919B8"
                 "parentUncleHash": (
                     "0x000000000000000000000000000000000000000000000000000000000000000d"
                 ),
-                "withdrawals": [
-                    {
-                        "index": "0x0",
-                        "validatorIndex": "0x1",
-                        "address": "0x0000000000000000000000000000000000001234",
-                        "amount": "0x2",
-                    },
-                ],
                 "parentBlobGasUsed": "14",
                 "parentExcessBlobGas": "15",
                 "currentBlobGasUsed": "16",
@@ -757,69 +737,6 @@ def test_transaction_post_init_defaults(tx_args, expected_attributes_and_values)
     for attr, val in expected_attributes_and_values:
         assert hasattr(tx, attr)
         assert getattr(tx, attr) == val
-
-
-@pytest.mark.parametrize(
-    ["withdrawals", "expected_root"],
-    [
-        pytest.param(
-            [],
-            bytes.fromhex("56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"),
-            id="empty-withdrawals",
-        ),
-        pytest.param(
-            [
-                Withdrawal(
-                    index=0,
-                    validator_index=1,
-                    address=0x1234,
-                    amount=2,
-                )
-            ],
-            bytes.fromhex("dc3ead883fc17ea3802cd0f8e362566b07b223f82e52f94c76cf420444b8ff81"),
-            id="single-withdrawal",
-        ),
-        pytest.param(
-            [
-                Withdrawal(
-                    index=0,
-                    validator_index=1,
-                    address=0x1234,
-                    amount=2,
-                ),
-                Withdrawal(
-                    index=1,
-                    validator_index=2,
-                    address=0xABCD,
-                    amount=0,
-                ),
-            ],
-            bytes.fromhex("069ab71e5d228db9b916880f02670c85682c46641bb9c95df84acc5075669e01"),
-            id="multiple-withdrawals",
-        ),
-        pytest.param(
-            [
-                Withdrawal(
-                    index=0,
-                    validator_index=0,
-                    address=0x100,
-                    amount=0,
-                ),
-                Withdrawal(
-                    index=0,
-                    validator_index=0,
-                    address=0x200,
-                    amount=0,
-                ),
-            ],
-            bytes.fromhex("daacd8fe889693f7d20436d9c0c044b5e92cc17b57e379997273fc67fd2eb7b8"),
-            id="multiple-withdrawals",
-        ),
-    ],
-)
-def test_withdrawals_root(withdrawals: List[Withdrawal], expected_root: bytes):
-    """Test that withdrawals_root returns the expected hash."""
-    assert Withdrawal.list_root(withdrawals) == expected_root
 
 
 @pytest.mark.parametrize(

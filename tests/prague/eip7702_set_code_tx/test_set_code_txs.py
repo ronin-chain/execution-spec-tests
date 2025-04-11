@@ -2675,7 +2675,6 @@ def test_set_code_to_system_contract(
         blocks=[
             Block(
                 txs=txs,
-                requests_hash=Requests(),  # Verify nothing slipped into the requests trie
             )
         ],
         post={

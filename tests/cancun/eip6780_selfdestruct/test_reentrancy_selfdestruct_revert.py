@@ -122,7 +122,7 @@ def revert_contract_address(
     return pre.deploy_contract(revert_contract_bytecode, balance=revert_contract_init_balance)
 
 
-@pytest.mark.valid_from("Paris")
+@pytest.mark.valid_from("Shanghai")
 @pytest.mark.parametrize("first_suicide", [Op.CALL, Op.CALLCODE, Op.DELEGATECALL])
 @pytest.mark.parametrize("second_suicide", [Op.CALL, Op.CALLCODE, Op.DELEGATECALL])
 def test_reentrancy_selfdestruct_revert(

@@ -57,7 +57,7 @@ def test_no_options_no_validity_marker(pytester):
     )
 
 
-@pytest.mark.parametrize("fork", ["London", "Paris"])
+@pytest.mark.parametrize("fork", ["London", "Shanghai"])
 def test_from_london_option_no_validity_marker(pytester, fork_map, fork):
     """
     Test test parametrization with:
@@ -161,7 +161,7 @@ def test_from_merge_until_merge_option_no_validity_marker(pytester, fork_map):
     )
     pytester.copy_example(name="pytest.ini")
     result = pytester.runpytest("-v", "--from", "Merge", "--until", "Merge")
-    forks_under_test = forks_from_until(fork_map["Paris"], fork_map["Paris"])
+    forks_under_test = forks_from_until(fork_map["Shanghai"], fork_map["Shanghai"])
     expected_passed = len(forks_under_test) * len(StateTest.supported_fixture_formats)
     stdout = "\n".join(result.stdout.lines)
     for fork in forks_under_test:

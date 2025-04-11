@@ -38,7 +38,7 @@ def test_case(state_test_only):
         ),
         pytest.param(
             generate_test(
-                valid_from='"Paris"',
+                valid_from='"Shanghai"',
             ),
             ["--until=Prague"],
             {"passed": 4, "failed": 0, "skipped": 0, "errors": 0},
@@ -46,7 +46,7 @@ def test_case(state_test_only):
         ),
         pytest.param(
             generate_test(
-                valid_from='"Paris"',
+                valid_from='"Shanghai"',
                 valid_until='"Cancun"',
             ),
             [],
@@ -55,7 +55,7 @@ def test_case(state_test_only):
         ),
         pytest.param(
             generate_test(
-                valid_from='"Paris"',
+                valid_from='"Shanghai"',
                 valid_until='"Cancun"',
             ),
             ["--until=Prague"],
@@ -64,7 +64,7 @@ def test_case(state_test_only):
         ),
         pytest.param(
             generate_test(
-                valid_from='"Paris"',
+                valid_from='"Shanghai"',
                 valid_until='"Cancun"',
             ),
             ["--until=Shanghai"],
@@ -97,7 +97,7 @@ def test_case(state_test_only):
         ),
         pytest.param(
             generate_test(
-                valid_at_transition_to='"Paris", subsequent_forks=True',
+                valid_at_transition_to='"Shanghai", subsequent_forks=True',
             ),
             ["--until=Prague"],
             {"passed": 3, "failed": 0, "skipped": 0, "errors": 0},
@@ -105,7 +105,7 @@ def test_case(state_test_only):
         ),
         pytest.param(
             generate_test(
-                valid_at_transition_to='"Paris", subsequent_forks=True, until="Cancun"',
+                valid_at_transition_to='"Shanghai", subsequent_forks=True, until="Cancun"',
             ),
             ["--until=Prague"],
             {"passed": 2, "failed": 0, "skipped": 0, "errors": 0},

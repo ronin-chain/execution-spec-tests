@@ -295,42 +295,7 @@ class Alloc(BaseAlloc):
         raise NotImplementedError("send_transaction_and_wait is not implemented in the base class")
 
 
-class WithdrawalGeneric(CamelModel, Generic[NumberBoundTypeVar]):
-    """Withdrawal generic type, used as a parent class for `Withdrawal` and `FixtureWithdrawal`."""
-
-    index: NumberBoundTypeVar
-    validator_index: NumberBoundTypeVar
-    address: Address
-    amount: NumberBoundTypeVar
-
-    def to_serializable_list(self) -> List[Any]:
-        """
-        Return list of the withdrawal's attributes in the order they should
-        be serialized.
-        """
-        return [
-            Uint(self.index),
-            Uint(self.validator_index),
-            self.address,
-            Uint(self.amount),
-        ]
-
-    @staticmethod
-    def list_root(withdrawals: Sequence["WithdrawalGeneric"]) -> bytes:
-        """Return withdrawals root of a list of withdrawals."""
-        t = HexaryTrie(db={})
-        for i, w in enumerate(withdrawals):
-            t.set(eth_rlp.encode(Uint(i)), eth_rlp.encode(w.to_serializable_list()))
-        return t.root_hash
-
-
-class Withdrawal(WithdrawalGeneric[HexNumber]):
-    """Withdrawal type."""
-
-    pass
-
-
-DEFAULT_BASE_FEE = 7
+DEFAULT_BASE_FEE = 1_500_000_000
 
 
 class EnvironmentGeneric(CamelModel, Generic[NumberBoundTypeVar]):
@@ -365,11 +330,9 @@ class Environment(EnvironmentGeneric[Number]):
     parent_ommers_hash: Hash = Field(Hash(EmptyOmmersRoot), alias="parentUncleHash")
     parent_blob_gas_used: Number | None = Field(None)
     parent_excess_blob_gas: Number | None = Field(None)
-    parent_beacon_block_root: Hash | None = Field(None)
 
     block_hashes: Dict[Number, Hash] = Field(default_factory=dict)
     ommers: List[Hash] = Field(default_factory=list)
-    withdrawals: List[Withdrawal] | None = Field(None)
     extra_data: Bytes = Field(Bytes(b"\x00"), exclude=True)
 
     @computed_field  # type: ignore[misc]
@@ -394,9 +357,6 @@ class Environment(EnvironmentGeneric[Number]):
 
         if fork.header_prev_randao_required(number, timestamp) and self.prev_randao is None:
             updated_values["prev_randao"] = 0
-
-        if fork.header_withdrawals_required(number, timestamp) and self.withdrawals is None:
-            updated_values["withdrawals"] = []
 
         if (
             fork.header_base_fee_required(number, timestamp)
@@ -423,12 +383,6 @@ class Environment(EnvironmentGeneric[Number]):
             and self.parent_blob_gas_used is None
         ):
             updated_values["blob_gas_used"] = 0
-
-        if (
-            fork.header_beacon_root_required(number, timestamp)
-            and self.parent_beacon_block_root is None
-        ):
-            updated_values["parent_beacon_block_root"] = 0
 
         return self.copy(**updated_values)
 
@@ -597,9 +551,9 @@ class TransactionDefaults:
     """Default values for transactions."""
 
     chain_id: int = 1
-    gas_price = 10
-    max_fee_per_gas = 7
-    max_priority_fee_per_gas: int = 0
+    gas_price = 1_500_000_000
+    max_fee_per_gas = 20_000_000_000
+    max_priority_fee_per_gas: int = 1_000_000_000
 
 
 class TransactionGeneric(BaseModel, Generic[NumberBoundTypeVar]):
@@ -1093,46 +1047,6 @@ class RequestBase:
     def __bytes__(self) -> bytes:
         """Return request's attributes as bytes."""
         ...
-
-
-class DepositRequest(RequestBase, CamelModel):
-    """Deposit Request type."""
-
-    pubkey: BLSPublicKey
-    withdrawal_credentials: Hash
-    amount: HexNumber
-    signature: BLSSignature
-    index: HexNumber
-
-    type: ClassVar[int] = 0
-
-    def __bytes__(self) -> bytes:
-        """Return deposit's attributes as bytes."""
-        return (
-            bytes(self.pubkey)
-            + bytes(self.withdrawal_credentials)
-            + self.amount.to_bytes(8, "little")
-            + bytes(self.signature)
-            + self.index.to_bytes(8, "little")
-        )
-
-
-class WithdrawalRequest(RequestBase, CamelModel):
-    """Withdrawal Request type."""
-
-    source_address: Address = Address(0)
-    validator_pubkey: BLSPublicKey
-    amount: HexNumber
-
-    type: ClassVar[int] = 1
-
-    def __bytes__(self) -> bytes:
-        """Return withdrawal's attributes as bytes."""
-        return (
-            bytes(self.source_address)
-            + bytes(self.validator_pubkey)
-            + self.amount.to_bytes(8, "little")
-        )
 
 
 class ConsolidationRequest(RequestBase, CamelModel):

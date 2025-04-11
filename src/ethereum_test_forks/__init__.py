@@ -15,14 +15,12 @@ from .forks.forks import (
     London,
     MuirGlacier,
     Osaka,
-    Paris,
     Prague,
     Shanghai,
 )
 from .forks.transition import (
     BerlinToLondonAt5,
     CancunToPragueAtTime15k,
-    ParisToShanghaiAtTime15k,
     ShanghaiToCancunAtTime15k,
 )
 from .gas_costs import GasCosts
@@ -60,8 +58,6 @@ __all__ = [
     "InvalidForkError",
     "Istanbul",
     "London",
-    "Paris",
-    "ParisToShanghaiAtTime15k",
     "MuirGlacier",
     "Shanghai",
     "ShanghaiToCancunAtTime15k",

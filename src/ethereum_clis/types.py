@@ -31,11 +31,8 @@ class Result(CamelModel):
     difficulty: HexNumber | None = Field(None, alias="currentDifficulty")
     gas_used: HexNumber
     base_fee_per_gas: HexNumber | None = Field(None, alias="currentBaseFee")
-    withdrawals_root: Hash | None = None
     excess_blob_gas: HexNumber | None = Field(None, alias="currentExcessBlobGas")
     blob_gas_used: HexNumber | None = None
-    requests_hash: Hash | None = None
-    requests: List[Bytes] | None = None
 
 
 class TransitionToolInput(CamelModel):

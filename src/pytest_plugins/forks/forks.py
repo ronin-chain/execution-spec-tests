@@ -447,7 +447,7 @@ def pytest_configure(config: pytest.Config):
         for i in range(len(forks_str)):
             forks_str[i] = forks_str[i].strip().capitalize()
             if forks_str[i] == "Merge":
-                forks_str[i] = "Paris"
+                forks_str[i] = "Shanghai"
 
         resulting_forks = set()
 
@@ -708,7 +708,7 @@ class ValidFrom(ValidityMarker):
     ```
 
     In this example, the test will only be filled for the London fork and after, e.g. London,
-    Paris, Shanghai, Cancun, etc.
+    Shanghai, Cancun, etc.
     """
 
     def _process_with_marker_args(self, *fork_args) -> Set[Fork]:

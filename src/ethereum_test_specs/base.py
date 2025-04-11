@@ -15,7 +15,7 @@ from ethereum_test_base_types import to_hex
 from ethereum_test_execution import BaseExecute, ExecuteFormat
 from ethereum_test_fixtures import BaseFixture, FixtureFormat
 from ethereum_test_forks import Fork
-from ethereum_test_types import Environment, Withdrawal
+from ethereum_test_types import Environment
 
 
 class HashMismatchExceptionError(Exception):
@@ -38,8 +38,7 @@ def verify_result(result: Result, env: Environment):
     Verify that values in the t8n result match the expected values.
     Raises exception on unexpected values.
     """
-    if env.withdrawals is not None:
-        assert result.withdrawals_root == to_hex(Withdrawal.list_root(env.withdrawals))
+    return
 
 
 class BaseTest(BaseModel):

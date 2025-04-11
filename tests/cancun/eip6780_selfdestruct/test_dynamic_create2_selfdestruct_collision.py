@@ -191,7 +191,7 @@ def create2_storage_contract_address(
     )
 
 
-@pytest.mark.valid_from("Paris")
+@pytest.mark.valid_from("Shanghai")
 @pytest.mark.parametrize(
     "create2_dest_already_in_state",
     (True, False),
@@ -204,6 +204,7 @@ def create2_storage_contract_address(
         (False, True),
     ],
 )
+@pytest.mark.skip("not implemented send_wait_transaction")
 def test_dynamic_create2_selfdestruct_collision(
     env: Environment,
     pre: Alloc,
@@ -361,7 +362,7 @@ def test_dynamic_create2_selfdestruct_collision(
     state_test(env=env, pre=pre, post=post, tx=tx)
 
 
-@pytest.mark.valid_from("Paris")
+@pytest.mark.valid_from("Shanghai")
 @pytest.mark.parametrize(
     "create2_dest_already_in_state",
     (True, False),
@@ -370,6 +371,7 @@ def test_dynamic_create2_selfdestruct_collision(
     "call_create2_contract_at_the_end",
     (True, False),
 )
+@pytest.mark.skip("not implemented send_wait_transaction")
 def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
@@ -584,7 +586,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
     )
 
 
-@pytest.mark.valid_from("Paris")
+@pytest.mark.valid_from("Shanghai")
 @pytest.mark.parametrize(
     "selfdestruct_on_first_tx,recreate_on_first_tx",
     [
@@ -593,6 +595,7 @@ def test_dynamic_create2_selfdestruct_collision_two_different_transactions(
         (True, True),
     ],
 )
+@pytest.mark.skip("not implemented send_wait_transaction")
 def test_dynamic_create2_selfdestruct_collision_multi_tx(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
