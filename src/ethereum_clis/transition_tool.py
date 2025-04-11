@@ -506,6 +506,7 @@ class TransitionTool(EthereumCLI, FixtureVerifier):
         If a client's `t8n` tool varies from the default behavior, this method
         can be overridden.
         """
+        print(12312312312)
         fork_name = fork.transition_tool_name(
             block_number=env.number,
             timestamp=env.timestamp,
@@ -527,7 +528,9 @@ class TransitionTool(EthereumCLI, FixtureVerifier):
 
         if self.t8n_use_server:
             if not self.process:
+                print(123123123)
                 self.start_server()
+                print(123123123)
             return self._evaluate_server(
                 t8n_data=t8n_data,
                 debug_output_path=debug_output_path,
@@ -556,4 +559,4 @@ class TransitionTool(EthereumCLI, FixtureVerifier):
         """
         raise NotImplementedError(
             "The `verify_fixture()` function is not supported by this tool. Use geth's evm tool."
-        )
+        )()

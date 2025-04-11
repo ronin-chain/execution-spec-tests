@@ -67,11 +67,6 @@ class Frontier(BaseFork, solc_name="homestead"):
         return False
 
     @classmethod
-    def header_withdrawals_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """At genesis, header must not contain withdrawals."""
-        return False
-
-    @classmethod
     def header_excess_blob_gas_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
         """At genesis, header must not contain excess blob gas."""
         return False
@@ -274,18 +269,8 @@ class Frontier(BaseFork, solc_name="homestead"):
         return None
 
     @classmethod
-    def header_beacon_root_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """At genesis, header must not contain parent beacon block root."""
-        return False
-
-    @classmethod
     def engine_new_payload_blob_hashes(cls, block_number: int = 0, timestamp: int = 0) -> bool:
         """At genesis, payloads do not have blob hashes."""
-        return False
-
-    @classmethod
-    def engine_new_payload_beacon_root(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """At genesis, payloads do not have a parent beacon block root."""
         return False
 
     @classmethod
@@ -838,11 +823,6 @@ class Shanghai(Paris):
     """Shanghai fork."""
 
     @classmethod
-    def header_withdrawals_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Withdrawals are required starting from Shanghai."""
-        return True
-
-    @classmethod
     def engine_new_payload_version(
         cls, block_number: int = 0, timestamp: int = 0
     ) -> Optional[int]:
@@ -873,11 +853,6 @@ class Cancun(Shanghai):
     @classmethod
     def header_blob_gas_used_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
         """Blob gas used is required starting from Cancun."""
-        return True
-
-    @classmethod
-    def header_beacon_root_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Parent beacon block root is required starting from Cancun."""
         return True
 
     @classmethod
@@ -1020,11 +995,6 @@ class Cancun(Shanghai):
     @classmethod
     def engine_new_payload_blob_hashes(cls, block_number: int = 0, timestamp: int = 0) -> bool:
         """From Cancun, payloads must have blob hashes."""
-        return True
-
-    @classmethod
-    def engine_new_payload_beacon_root(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """From Cancun, payloads must have a parent beacon block root."""
         return True
 
     @classmethod
@@ -1221,17 +1191,6 @@ class Prague(Cancun):
                         "code": f.read(),
                         "storage": storage,
                     }
-                }
-            )
-
-        # EIP-7002: Add the withdrawal request contract
-        with open(CURRENT_FOLDER / "contracts" / "withdrawal_request.bin", mode="rb") as f:
-            new_allocation.update(
-                {
-                    0x00000961EF480EB55E80D19AD83579A64C007002: {
-                        "nonce": 1,
-                        "code": f.read(),
-                    },
                 }
             )
 

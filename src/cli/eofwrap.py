@@ -250,7 +250,6 @@ class EofWrapper:
             base_fee_per_gas=fixture.genesis.base_fee_per_gas,
             blob_gas_used=fixture.genesis.blob_gas_used,
             excess_blob_gas=fixture.genesis.excess_blob_gas,
-            parent_beacon_block_root=fixture.genesis.parent_beacon_block_root,
         )
 
         pre = fixture.pre
@@ -279,11 +278,8 @@ class EofWrapper:
                     prev_randao=header.prev_randao,
                     nonce=header.nonce,
                     base_fee_per_gas=header.base_fee_per_gas,
-                    withdrawals_root=header.withdrawals_root,
-                    parent_beacon_block_root=header.parent_beacon_block_root,
                 )
                 assert not fixture_block.ommers
-                assert not fixture_block.withdrawals
 
                 for fixture_tx in fixture_block.txs:
                     fixture_tx_dump = fixture_tx.model_dump()

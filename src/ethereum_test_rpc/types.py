@@ -7,7 +7,6 @@ from pydantic import Field
 
 from ethereum_test_base_types import Address, Bytes, CamelModel, Hash, HexNumber
 from ethereum_test_fixtures.blockchain import FixtureExecutionPayload
-from ethereum_test_types import Withdrawal
 
 
 class JSONRPCError(Exception):
@@ -88,8 +87,6 @@ class PayloadAttributes(CamelModel):
     timestamp: HexNumber
     prev_randao: Hash
     suggested_fee_recipient: Address
-    withdrawals: List[Withdrawal] | None = None
-    parent_beacon_block_root: Hash | None = None
 
 
 class BlobsBundle(CamelModel):
