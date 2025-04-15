@@ -31,7 +31,6 @@ from ..helpers import (
     get_forks,
     get_forks_with_solc_support,
     transition_fork_from_to,
-    transition_fork_to,
 )
 from ..transition_base_fork import transition_fork
 

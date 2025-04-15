@@ -4,7 +4,7 @@ from pprint import pprint
 from typing import Any, Callable, ClassVar, Dict, Generator, List, Optional, Tuple, Type
 
 import pytest
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field
 
 from ethereum_clis import TransitionTool
 from ethereum_test_base_types import (
@@ -38,7 +38,7 @@ from ethereum_test_fixtures.blockchain import (
 )
 from ethereum_test_fixtures.common import FixtureBlobSchedule
 from ethereum_test_forks import Fork
-from ethereum_test_types import Alloc, Environment, Removable, Requests, Transaction
+from ethereum_test_types import Alloc, Environment, Removable, Transaction
 
 from .base import BaseTest, verify_result
 from .debugging import print_traces
@@ -326,7 +326,7 @@ class BlockchainTest(BaseTest):
         previous_alloc: Alloc,
         eips: Optional[List[int]] = None,
         slow: bool = False,
-    ) -> Tuple[FixtureHeader, List[Transaction], List[Bytes] | None, Alloc, Environment]:
+    ) -> Tuple[FixtureHeader, List[Transaction], Alloc, Environment]:
         """Generate common block data for both make_fixture and make_hive_fixture."""
         if block.rlp and block.exception is not None:
             raise Exception(

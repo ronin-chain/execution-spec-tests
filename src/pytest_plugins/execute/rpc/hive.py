@@ -37,7 +37,6 @@ from ethereum_test_tools import (
     Hash,
     Transaction,
 )
-from ethereum_test_types import Requests
 from pytest_plugins.consume.hive_simulators.ruleset import ruleset
 
 

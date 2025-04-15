@@ -11,7 +11,6 @@ import pytest
 from pydantic import BaseModel, Field
 
 from ethereum_clis import Result, TransitionTool
-from ethereum_test_base_types import to_hex
 from ethereum_test_execution import BaseExecute, ExecuteFormat
 from ethereum_test_fixtures import BaseFixture, FixtureFormat
 from ethereum_test_forks import Fork

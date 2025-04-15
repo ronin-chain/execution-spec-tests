@@ -1,6 +1,6 @@
 """Test suite for `ethereum_test` module."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import pytest
 

@@ -26,7 +26,6 @@ from ethereum_test_tools import (
     EVMCodeType,
     Hash,
     Initcode,
-    Requests,
     StateTestFiller,
     Storage,
     Transaction,

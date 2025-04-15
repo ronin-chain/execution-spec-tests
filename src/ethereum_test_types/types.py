@@ -29,7 +29,6 @@ from ethereum_test_base_types import (
     Address,
     Bloom,
     BLSPublicKey,
-    BLSSignature,
     Bytes,
     CamelModel,
     EmptyOmmersRoot,
