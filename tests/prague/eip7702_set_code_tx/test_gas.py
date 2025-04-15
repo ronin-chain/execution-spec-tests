@@ -26,7 +26,6 @@ from ethereum_test_tools import (
     Storage,
     Transaction,
     TransactionException,
-    TransactionReceipt,
     extend_with_defaults,
 )
 from ethereum_test_tools import Opcodes as Op
