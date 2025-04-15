@@ -7,7 +7,3 @@ develop:
   evm-type: develop
   fill-params: --until=Prague
   solc: 0.8.21
-pectra-devnet-6:
-  evm-type: pectra-devnet-6
-  fill-params: --until=Prague
-  solc: 0.8.21
