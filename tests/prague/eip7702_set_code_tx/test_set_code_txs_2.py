@@ -822,7 +822,7 @@ def test_pointer_to_static(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=pointer_a,
-        gas_limit=1_000_000,
+        gas_limit=2_000_000,
         data=b"",
         value=0,
         sender=sender,
@@ -868,7 +868,7 @@ def test_static_to_pointer(state_test: StateTestFiller, pre: Alloc):
 
     tx = Transaction(
         to=contract_a,
-        gas_limit=1_000_000,
+        gas_limit=2_000_000,
         data=b"",
         value=0,
         sender=sender,

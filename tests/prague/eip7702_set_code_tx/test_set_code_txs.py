@@ -664,7 +664,7 @@ def test_set_code_to_self_caller(
     )
 
 
-@pytest.mark.execute(pytest.mark.skip(reason="excessive gas"))
+@pytest.mark.skip(reason="excessive gas")
 def test_set_code_max_depth_call_stack(
     state_test: StateTestFiller,
     pre: Alloc,
@@ -747,7 +747,7 @@ def test_set_code_call_set_code(
     set_code_to_address_2 = pre.deploy_contract(set_code_2)
 
     tx = Transaction(
-        gas_limit=1_000_000,
+        gas_limit=2_000_000,
         to=auth_signer_1,
         value=value,
         authorization_list=[
@@ -3277,7 +3277,7 @@ def test_creating_delegation_designation_contract(
         pytest.param(
             120_000_000,
             id="120m",
-            marks=pytest.mark.execute(pytest.mark.skip(reason="excessive gas")),
+            marks=pytest.mark.skip(reason="excessive gas"),
         ),
         pytest.param(
             20_000_000,
