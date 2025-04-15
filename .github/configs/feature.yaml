@@ -3,7 +3,9 @@ stable:
   evm-type: stable
   fill-params: --until=Cancun
   solc: 0.8.21
+  specs: tests/shanghai tests/cancun
 develop:
   evm-type: develop
   fill-params: --until=Prague
   solc: 0.8.21
+  specs: tests/shanghai tests/cancun tests/prague
