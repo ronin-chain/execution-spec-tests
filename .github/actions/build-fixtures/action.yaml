@@ -37,10 +37,26 @@ runs:
         tests_url: https://github.com/ethereum/tests/archive/refs/tags/v
         tests_version: 14.1
         output_path: blockchain_tests/osaka/eofwrap
-    - name: Generate fixtures using fill
+    - name: Generate Shanghai StateTest
       shell: bash
       run: |
-        uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} --output=fixtures_${{ inputs.release_name }}.tar.gz --build-name ${{ inputs.release_name }}
+        uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} tests/shanghai -m state_test
+    - name: Generate Cancun StateTest
+      shell: bash
+      run: |
+        uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} tests/cancun -m state_test
+    - name: Generate Shanghai BlockchainTest
+      shell: bash
+      run: |
+        uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} tests/shanghai -m blockchain_test
+    - name: Generate Cancun BlockchainTest
+      shell: bash
+      run: |
+        uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} tests/cancun -m blockchain_test
+    - name: Compress fixtures
+      shell: bash
+      run: |
+        tar -czvf fixtures_{{ inputs.release_name }}.tar.gz fixtures
     - uses: actions/upload-artifact@v4
       with:
         name: fixtures_${{ inputs.release_name }}
