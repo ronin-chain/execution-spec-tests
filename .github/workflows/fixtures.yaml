@@ -19,6 +19,7 @@ jobs:
         run: |
           echo "features=$(grep -Po "^[0-9a-zA-Z_\-]+" ./.github/configs/feature.yaml | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
   build:
+    runs-on: ubuntu-latest
     needs: features
     strategy:
       matrix:
