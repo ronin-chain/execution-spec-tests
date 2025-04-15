@@ -56,7 +56,7 @@ runs:
     - name: Compress fixtures
       shell: bash
       run: |
-        tar -czvf fixtures_{{ inputs.release_name }}.tar.gz fixtures
+        tar -czvf fixtures_${{ inputs.release_name }}.tar.gz fixtures
     - uses: actions/upload-artifact@v4
       with:
         name: fixtures_${{ inputs.release_name }}
