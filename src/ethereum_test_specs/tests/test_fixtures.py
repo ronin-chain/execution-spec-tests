@@ -19,7 +19,7 @@ from ethereum_test_fixtures import (
     FixtureFormat,
     StateFixture,
 )
-from ethereum_test_forks import Berlin, Cancun, Fork, Istanbul, London, Paris, Shanghai
+from ethereum_test_forks import Berlin, Cancun, Fork, Istanbul, London, Shanghai
 from ethereum_test_types import Alloc, Environment, Transaction
 from ethereum_test_vm import Opcodes as Op
 
@@ -119,10 +119,8 @@ class TransactionType(IntEnum):
         (Istanbul, BlockchainFixture, TransactionType.LEGACY),
         (London, BlockchainFixture, TransactionType.LEGACY),
         (Cancun, BlockchainFixture, TransactionType.LEGACY),
-        (Paris, BlockchainEngineFixture, TransactionType.LEGACY),
         (Shanghai, BlockchainEngineFixture, TransactionType.LEGACY),
         (Cancun, BlockchainEngineFixture, TransactionType.LEGACY),
-        (Paris, StateFixture, TransactionType.LEGACY),
         (Shanghai, StateFixture, TransactionType.LEGACY),
         (Cancun, StateFixture, TransactionType.LEGACY),
         (Cancun, StateFixture, TransactionType.ACCESS_LIST),

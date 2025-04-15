@@ -36,9 +36,7 @@ from ethereum_test_tools import (
     Environment,
     Hash,
     Transaction,
-    Withdrawal,
 )
-from ethereum_test_types import Requests
 from pytest_plugins.consume.hive_simulators.ruleset import ruleset
 
 
@@ -107,7 +105,7 @@ def get_fork_option(request, option_name: str) -> Fork | None:
     option = request.config.getoption(option_name)
     if option := request.config.getoption(option_name):
         if option == "Merge":
-            option = "Paris"
+            option = "Shanghai"
         for fork in get_forks():
             if option == fork.name():
                 return fork
@@ -203,12 +201,6 @@ def base_pre_genesis(
 ) -> Tuple[Alloc, FixtureHeader]:
     """Create a genesis block from the blockchain test definition."""
     env = Environment().set_fork_requirements(base_fork)
-    assert env.withdrawals is None or len(env.withdrawals) == 0, (
-        "withdrawals must be empty at genesis"
-    )
-    assert env.parent_beacon_block_root is None or env.parent_beacon_block_root == Hash(0), (
-        "parent_beacon_block_root must be empty at genesis"
-    )
 
     pre_alloc = Alloc.merge(
         Alloc.model_validate(base_fork.pre_allocation_blockchain()),
@@ -238,13 +230,6 @@ def base_pre_genesis(
         base_fee_per_gas=env.base_fee_per_gas,
         blob_gas_used=env.blob_gas_used,
         excess_blob_gas=env.excess_blob_gas,
-        withdrawals_root=(
-            Withdrawal.list_root(env.withdrawals) if env.withdrawals is not None else None
-        ),
-        parent_beacon_block_root=env.parent_beacon_block_root,
-        requests_hash=Requests()
-        if base_fork.header_requests_required(block_number=block_number, timestamp=timestamp)
-        else None,
     )
 
     return (pre_alloc, genesis)
@@ -599,13 +584,10 @@ class EthRPC(BaseEthRPC):
         forkchoice_state = ForkchoiceState(
             head_block_hash=head_block["hash"],
         )
-        parent_beacon_block_root = Hash(0) if self.fork.header_beacon_root_required(0, 0) else None
         payload_attributes = PayloadAttributes(
             timestamp=HexNumber(head_block["timestamp"]) + 1,
             prev_randao=Hash(0),
             suggested_fee_recipient=Address(0),
-            withdrawals=[] if self.fork.header_withdrawals_required() else None,
-            parent_beacon_block_root=parent_beacon_block_root,
             target_blobs_per_block=(
                 self.fork.target_blobs_per_block(0, 0)
                 if self.fork.engine_payload_attribute_target_blobs_per_block(0, 0)
@@ -638,8 +620,6 @@ class EthRPC(BaseEthRPC):
         new_payload_args: List[Any] = [new_payload.execution_payload]
         if new_payload.blobs_bundle is not None:
             new_payload_args.append(new_payload.blobs_bundle.blob_versioned_hashes())
-        if parent_beacon_block_root is not None:
-            new_payload_args.append(parent_beacon_block_root)
         if new_payload.execution_requests is not None:
             new_payload_args.append(new_payload.execution_requests)
         new_payload_version = self.fork.engine_new_payload_version()

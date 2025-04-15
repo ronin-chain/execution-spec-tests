@@ -26,7 +26,6 @@ from ethereum_test_tools import (
     EVMCodeType,
     Hash,
     Initcode,
-    Requests,
     StateTestFiller,
     Storage,
     Transaction,
@@ -2675,7 +2674,6 @@ def test_set_code_to_system_contract(
         blocks=[
             Block(
                 txs=txs,
-                requests_hash=Requests(),  # Verify nothing slipped into the requests trie
             )
         ],
         post={

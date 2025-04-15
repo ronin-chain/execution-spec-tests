@@ -190,12 +190,6 @@ class BaseFork(ABC, metaclass=BaseForkMeta):
 
     @classmethod
     @abstractmethod
-    def header_withdrawals_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Return true if the header must contain withdrawals."""
-        pass
-
-    @classmethod
-    @abstractmethod
     def header_excess_blob_gas_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
         """Return true if the header must contain excess blob gas."""
         pass
@@ -204,18 +198,6 @@ class BaseFork(ABC, metaclass=BaseForkMeta):
     @abstractmethod
     def header_blob_gas_used_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
         """Return true if the header must contain blob gas used."""
-        pass
-
-    @classmethod
-    @abstractmethod
-    def header_beacon_root_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Return true if the header must contain parent beacon block root."""
-        pass
-
-    @classmethod
-    @abstractmethod
-    def header_requests_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Return true if the header must contain beacon chain requests."""
         pass
 
     # Gas related abstract methods
@@ -395,21 +377,6 @@ class BaseFork(ABC, metaclass=BaseForkMeta):
         Return true if the engine api version requires new payload calls to include
         blob hashes.
         """
-        pass
-
-    @classmethod
-    @abstractmethod
-    def engine_new_payload_beacon_root(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """
-        Return true if the engine api version requires new payload calls to include a parent
-        beacon block root.
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    def engine_new_payload_requests(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Return true if the engine api version requires new payload calls to include requests."""
         pass
 
     @classmethod

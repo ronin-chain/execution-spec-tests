@@ -15,7 +15,6 @@ from .types import (
     AuthorizationTuple,
     CamelModel,
     ConsolidationRequest,
-    DepositRequest,
     Environment,
     Removable,
     Requests,
@@ -23,8 +22,6 @@ from .types import (
     Transaction,
     TransactionDefaults,
     TransactionReceipt,
-    Withdrawal,
-    WithdrawalRequest,
     keccak256,
 )
 
@@ -34,7 +31,6 @@ __all__ = (
     "AuthorizationTuple",
     "CamelModel",
     "ConsolidationRequest",
-    "DepositRequest",
     "EmptyTrieRoot",
     "Environment",
     "EOA",
@@ -51,8 +47,6 @@ __all__ = (
     "Transaction",
     "TransactionDefaults",
     "TransactionReceipt",
-    "Withdrawal",
-    "WithdrawalRequest",
     "ZeroPaddedHexNumber",
     "add_kzg_version",
     "ceiling_division",

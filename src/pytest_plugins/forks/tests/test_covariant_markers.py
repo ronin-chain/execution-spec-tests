@@ -10,8 +10,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types()
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 pass
             """,
@@ -23,8 +23,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types(selector=lambda tx_type: tx_type != 0)
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 pass
             """,
@@ -38,8 +38,8 @@ import pytest
             @pytest.mark.with_all_tx_types(
                 marks=lambda tx_type: pytest.mark.skip("incompatible") if tx_type == 1 else None,
             )
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 assert tx_type != 1
             """,
@@ -51,8 +51,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types(marks=pytest.mark.skip("incompatible"))
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 assert False
             """,
@@ -64,8 +64,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types(marks=[pytest.mark.skip("incompatible")])
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 assert False
             """,
@@ -83,8 +83,8 @@ import pytest
                         if tx_type == 1 else None
                     ),
             )
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(request, state_test_only, tx_type):
                 mark_names = [mark.name for mark in request.node.iter_markers()]
 
@@ -100,8 +100,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_contract_creating_tx_types()
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 pass
             """,
@@ -249,8 +249,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types(invalid_parameter="invalid")
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 pass
             """,
@@ -262,8 +262,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types(selector=None)
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 pass
             """,
@@ -275,8 +275,8 @@ import pytest
             """
             import pytest
             @pytest.mark.with_all_tx_types(lambda tx_type: tx_type != 0)
-            @pytest.mark.valid_from("Paris")
-            @pytest.mark.valid_until("Paris")
+            @pytest.mark.valid_from("Shanghai")
+            @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, tx_type):
                 pass
             """,
@@ -289,13 +289,13 @@ import pytest
             import pytest
 
             def covariant_function(fork):
-                return [1, 2] if fork.name() == "Paris" else [3, 4, 5]
+                return [1, 2] if fork.name() == "Shanghai" else [3, 4, 5]
 
             @pytest.mark.parametrize_by_fork(
                 argnames=["test_parameter"],
                 fn=covariant_function,
             )
-            @pytest.mark.valid_from("Paris")
+            @pytest.mark.valid_from("Shanghai")
             @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, test_parameter):
                 pass
@@ -309,10 +309,10 @@ import pytest
             import pytest
 
             def covariant_function(fork):
-                return [[1, 2], [3, 4]] if fork.name() == "Paris" else [[4, 5], [5, 6], [6, 7]]
+                return [[1, 2], [3, 4]] if fork.name() == "Shanghai" else [[4, 5], [5, 6], [6, 7]]
 
             @pytest.mark.parametrize_by_fork("test_parameter,test_parameter_2", covariant_function)
-            @pytest.mark.valid_from("Paris")
+            @pytest.mark.valid_from("Shanghai")
             @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, test_parameter, test_parameter_2):
                 pass
@@ -329,14 +329,14 @@ import pytest
                 return [
                     pytest.param(1, id="first_value"),
                     2,
-                ] if fork.name() == "Paris" else [
+                ] if fork.name() == "Shanghai" else [
                     pytest.param(3, id="third_value"),
                     4,
                     5,
                 ]
 
             @pytest.mark.parametrize_by_fork("test_parameter",covariant_function)
-            @pytest.mark.valid_from("Paris")
+            @pytest.mark.valid_from("Shanghai")
             @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, test_parameter):
                 pass
@@ -353,7 +353,7 @@ import pytest
                 return [
                     pytest.param(1, 2, id="first_test"),
                     pytest.param(3, 4, id="second_test"),
-                ] if fork.name() == "Paris" else [
+                ] if fork.name() == "Shanghai" else [
                     pytest.param(4, 5, id="fourth_test"),
                     pytest.param(5, 6, id="fifth_test"),
                     pytest.param(6, 7, id="sixth_test"),
@@ -362,7 +362,7 @@ import pytest
             @pytest.mark.parametrize_by_fork(argnames=[
                 "test_parameter", "test_parameter_2"
             ], fn=covariant_function)
-            @pytest.mark.valid_from("Paris")
+            @pytest.mark.valid_from("Shanghai")
             @pytest.mark.valid_until("Shanghai")
             def test_case(state_test_only, test_parameter, test_parameter_2):
                 pass

@@ -15,14 +15,12 @@ from ..forks.forks import (
     Homestead,
     Istanbul,
     London,
-    Paris,
     Prague,
     Shanghai,
 )
 from ..forks.transition import (
     BerlinToLondonAt5,
     CancunToPragueAtTime15k,
-    ParisToShanghaiAtTime15k,
     ShanghaiToCancunAtTime15k,
 )
 from ..helpers import (
@@ -33,7 +31,6 @@ from ..helpers import (
     get_forks,
     get_forks_with_solc_support,
     transition_fork_from_to,
-    transition_fork_to,
 )
 from ..transition_base_fork import transition_fork
 
@@ -46,8 +43,6 @@ DEVELOPMENT_FORKS = [Prague]
 def test_transition_forks():
     """Test transition fork utilities."""
     assert transition_fork_from_to(Berlin, London) == BerlinToLondonAt5
-    assert transition_fork_from_to(Berlin, Paris) is None
-    assert transition_fork_to(Shanghai) == {ParisToShanghaiAtTime15k}
 
     # Test forks transitioned to and from
     assert BerlinToLondonAt5.transitions_to() == London
@@ -58,88 +53,52 @@ def test_transition_forks():
     # Default values of transition forks is the transition block
     assert BerlinToLondonAt5.transition_tool_name() == "London"
 
-    assert ParisToShanghaiAtTime15k.transition_tool_name(0, 14_999) == "Merge"
-    assert ParisToShanghaiAtTime15k.transition_tool_name(0, 15_000) == "Shanghai"
-    assert ParisToShanghaiAtTime15k.transition_tool_name() == "Shanghai"
-
     assert BerlinToLondonAt5.header_base_fee_required(4, 0) is False
     assert BerlinToLondonAt5.header_base_fee_required(5, 0) is True
 
-    assert ParisToShanghaiAtTime15k.header_withdrawals_required(0, 14_999) is False
-    assert ParisToShanghaiAtTime15k.header_withdrawals_required(0, 15_000) is True
-
-    assert ParisToShanghaiAtTime15k.engine_new_payload_version(0, 14_999) == 1
-    assert ParisToShanghaiAtTime15k.engine_new_payload_version(0, 15_000) == 2
-
     assert BerlinToLondonAt5.fork_at(4, 0) == Berlin
     assert BerlinToLondonAt5.fork_at(5, 0) == London
-    assert ParisToShanghaiAtTime15k.fork_at(0, 14_999) == Paris
-    assert ParisToShanghaiAtTime15k.fork_at(0, 15_000) == Shanghai
-    assert ParisToShanghaiAtTime15k.fork_at() == Paris
-    assert ParisToShanghaiAtTime15k.fork_at(10_000_000, 14_999) == Paris
 
 
 def test_forks_from():  # noqa: D103
-    assert forks_from(Paris)[0] == Paris
-    assert forks_from(Paris)[-1] == LAST_DEPLOYED
-    assert forks_from(Paris, deployed_only=True)[0] == Paris
-    assert forks_from(Paris, deployed_only=True)[-1] == LAST_DEPLOYED
-    assert forks_from(Paris, deployed_only=False)[0] == Paris
-    # assert forks_from(Paris, deployed_only=False)[-1] == LAST_DEVELOPMENT  # Too flaky
+    assert forks_from(Shanghai)[0] == Shanghai
+    assert forks_from(Shanghai)[-1] == LAST_DEPLOYED
+    assert forks_from(Shanghai, deployed_only=True)[0] == Shanghai
+    assert forks_from(Shanghai, deployed_only=True)[-1] == LAST_DEPLOYED
+    assert forks_from(Shanghai, deployed_only=False)[0] == Shanghai
 
 
 def test_forks():
     """Test fork utilities."""
     assert forks_from_until(Berlin, Berlin) == [Berlin]
     assert forks_from_until(Berlin, London) == [Berlin, London]
-    assert forks_from_until(Berlin, Paris) == [
+    assert forks_from_until(Berlin, Shanghai) == [
         Berlin,
         London,
-        Paris,
+        Shanghai,
     ]
 
     # Test fork names
     assert London.name() == "London"
-    assert ParisToShanghaiAtTime15k.name() == "ParisToShanghaiAtTime15k"
     assert f"{London}" == "London"
-    assert f"{ParisToShanghaiAtTime15k}" == "ParisToShanghaiAtTime15k"
 
     # Merge name will be changed to paris, but we need to check the inheriting fork name is still
     # the default
-    assert Paris.transition_tool_name() == "Merge"
     assert Shanghai.transition_tool_name() == "Shanghai"
-    assert Paris.blockchain_test_network_name() == "Paris"
     assert Shanghai.blockchain_test_network_name() == "Shanghai"
-    assert ParisToShanghaiAtTime15k.blockchain_test_network_name() == "ParisToShanghaiAtTime15k"
 
     # Test some fork properties
     assert Berlin.header_base_fee_required(0, 0) is False
     assert London.header_base_fee_required(0, 0) is True
-    assert Paris.header_base_fee_required(0, 0) is True
-    # Default values of normal forks if the genesis block
-    assert Paris.header_base_fee_required() is True
 
     # Transition forks too
     assert cast(Fork, BerlinToLondonAt5).header_base_fee_required(4, 0) is False
     assert cast(Fork, BerlinToLondonAt5).header_base_fee_required(5, 0) is True
-    assert cast(Fork, ParisToShanghaiAtTime15k).header_withdrawals_required(0, 14_999) is False
-    assert cast(Fork, ParisToShanghaiAtTime15k).header_withdrawals_required(0, 15_000) is True
-    assert cast(Fork, ParisToShanghaiAtTime15k).header_withdrawals_required() is True
 
 
 def test_fork_comparison():
     """Test fork comparison operators."""
     # Test fork comparison
-    assert Paris > Berlin
-    assert not Berlin > Paris
-    assert Berlin < Paris
-    assert not Paris < Berlin
-
-    assert Paris >= Berlin
-    assert not Berlin >= Paris
-    assert Berlin <= Paris
-    assert not Paris <= Berlin
-
     assert London > Berlin
     assert not Berlin > London
     assert Berlin < London
@@ -185,23 +144,16 @@ def test_transition_fork_comparison():
     assert BerlinToLondonAt5 <= London
 
     # Comparisons between transition forks is done against the `transitions_to` fork
-    assert BerlinToLondonAt5 < ParisToShanghaiAtTime15k
-    assert ParisToShanghaiAtTime15k > BerlinToLondonAt5
     assert BerlinToLondonAt5 == BerlinToLondonAt5
-    assert BerlinToLondonAt5 != ParisToShanghaiAtTime15k
-    assert BerlinToLondonAt5 <= ParisToShanghaiAtTime15k
-    assert ParisToShanghaiAtTime15k >= BerlinToLondonAt5
 
     assert sorted(
         {
             CancunToPragueAtTime15k,
-            ParisToShanghaiAtTime15k,
             ShanghaiToCancunAtTime15k,
             BerlinToLondonAt5,
         }
     ) == [
         BerlinToLondonAt5,
-        ParisToShanghaiAtTime15k,
         ShanghaiToCancunAtTime15k,
         CancunToPragueAtTime15k,
     ]
@@ -271,7 +223,6 @@ def test_solc_versioning():  # noqa: D103
 
 
 def test_closest_fork_supported_by_solc():  # noqa: D103
-    assert get_closest_fork_with_solc_support(Paris, Version.parse("0.8.20")) == Paris
     assert get_closest_fork_with_solc_support(Cancun, Version.parse("0.8.20")) == Shanghai
     assert get_closest_fork_with_solc_support(Cancun, Version.parse("0.8.24")) == Cancun
     assert get_closest_fork_with_solc_support(Prague, Version.parse("0.8.24")) == Cancun
