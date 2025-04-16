@@ -42,8 +42,8 @@ runs:
       run: |
         for spec in ${{ steps.properties.outputs.specs }}; do
           echo "Running for $spec TransactionTest"
-          echo "CLI: uv run fill -n 1 --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} $spec -m transaction_test"
-          uv run fill -n 1 \
+          echo "CLI: uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} $spec -m transaction_test"
+          uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} \
             --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} \
             --solc-version=${{ steps.properties.outputs.solc }} \
             --skip-evm-dump \
@@ -51,8 +51,8 @@ runs:
             $spec -m transaction_test || true
 
           echo "Running for $spec StateTest"
-          echo "CLI: uv run fill -n 1 --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} $spec -m state_test"
-          uv run fill -n 1 \
+          echo "CLI: uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} $spec -m state_test"
+          uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} \
             --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} \
             --solc-version=${{ steps.properties.outputs.solc }} \
             --skip-evm-dump \
@@ -60,8 +60,8 @@ runs:
             $spec -m state_test
 
           echo "Running for $spec BlockchainTest"
-          echo "CLI: uv run fill -n 1 --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} $spec -m blockchain_test"
-          uv run fill -n 1 \
+          echo "CLI: uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} --solc-version=${{ steps.properties.outputs.solc }} --skip-evm-dump ${{ steps.properties.outputs.fill-params }} $spec -m blockchain_test"
+          uv run fill -n ${{ steps.evm-builder.outputs.x-dist }} \
             --evm-bin=${{ steps.evm-builder.outputs.evm-bin }} \
             --solc-version=${{ steps.properties.outputs.solc }} \
             --skip-evm-dump \
