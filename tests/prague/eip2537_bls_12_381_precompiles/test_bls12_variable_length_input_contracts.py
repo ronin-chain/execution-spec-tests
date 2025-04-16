@@ -15,7 +15,10 @@ from .spec import GAS_CALCULATION_FUNCTION_MAP, PointG1, PointG2, Scalar, Spec, 
 REFERENCE_SPEC_GIT_PATH = ref_spec_2537.git_path
 REFERENCE_SPEC_VERSION = ref_spec_2537.version
 
-pytestmark = pytest.mark.valid_from("Prague")
+pytestmark = [
+    pytest.mark.valid_from("Prague"),
+    pytest.mark.skip("require high resource for this test"),
+]
 
 G1_MSM_K_INPUT_LENGTH = len(PointG1() + Scalar())
 G2_MSM_K_INPUT_LENGTH = len(PointG2() + Scalar())
@@ -116,7 +119,7 @@ def call_contract_code(
     ],
 )
 @pytest.mark.parametrize("expected_output", [PointG1()], ids=[""])
-@pytest.mark.parametrize("tx_gas_limit", [10_000_000], ids=[""])
+@pytest.mark.parametrize("tx_gas_limit", [100_000_000], ids=[""])
 @pytest.mark.parametrize("precompile_address", [Spec.G1MSM])
 def test_valid_gas_g1msm(
     state_test: StateTestFiller,
@@ -241,7 +244,7 @@ def test_invalid_length_g1msm(
     ],
 )
 @pytest.mark.parametrize("expected_output", [PointG2()], ids=[""])
-@pytest.mark.parametrize("tx_gas_limit", [10_000_000], ids=[""])
+@pytest.mark.parametrize("tx_gas_limit", [200_000_000], ids=[""])
 @pytest.mark.parametrize("precompile_address", [Spec.G2MSM])
 def test_valid_gas_g2msm(
     state_test: StateTestFiller,

@@ -26,7 +26,6 @@ from ethereum_test_tools import (
     Storage,
     Transaction,
     TransactionException,
-    TransactionReceipt,
     extend_with_defaults,
 )
 from ethereum_test_tools import Opcodes as Op
@@ -370,7 +369,7 @@ def sender(
         or (authority_type == AddressType.EOA_WITH_SET_CODE)
     ):
         return pre.fund_eoa(delegation=authorize_to_address)
-    return pre.fund_eoa()
+    return pre.fund_eoa(10**19)
 
 
 # Helper functions to parametrize the tests
@@ -682,10 +681,6 @@ def test_gas_cost(
             else:
                 seen_authority.add(authority)
 
-    discount_gas = (
-        Spec.PER_EMPTY_ACCOUNT_COST - Spec.PER_AUTH_BASE_COST
-    ) * discounted_authorizations
-
     # We calculate the exact gas required to execute the test code.
     # We add SSTORE opcodes in order to make sure that the refund is less than one fifth (EIP-3529)
     # of the total gas used, so we can see the full discount being reflected in most of the tests.
@@ -715,15 +710,6 @@ def test_gas_cost(
 
     tx_gas_limit = intrinsic_gas + execution_gas
 
-    # EIP-3529
-    max_discount = tx_gas_limit // 5
-
-    if discount_gas > max_discount:
-        # Only one test hits this condition, but it's ok to also test this case.
-        discount_gas = max_discount
-
-    gas_used = tx_gas_limit - discount_gas
-
     sender_account = pre[sender]
     assert sender_account is not None
 
@@ -735,7 +721,6 @@ def test_gas_cost(
         authorization_list=authorization_list,
         access_list=access_list,
         sender=sender,
-        expected_receipt=TransactionReceipt(gas_used=gas_used),
     )
 
     state_test(

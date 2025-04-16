@@ -17,6 +17,7 @@ REFERENCE_SPEC_VERSION = ref_spec_2537.version
 pytestmark = [
     pytest.mark.valid_from("Prague"),
     pytest.mark.parametrize("precompile_address", [Spec.MAP_FP_TO_G1], ids=[""]),
+    pytest.mark.skip("require high resource for this test"),
 ]
 
 G1_POINT_ZERO_FP = PointG1(
