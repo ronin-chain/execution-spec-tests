@@ -73,7 +73,7 @@ def generate_block_check_code(
 
 
 @pytest.mark.parametrize(
-    "blob_count,check_contract_first",
+    "block_count,check_contract_first",
     [
         pytest.param(32, False, id="check_blockhash_first"),
         pytest.param(32, True, id="check_contract_first"),
@@ -83,7 +83,7 @@ def generate_block_check_code(
 def test_block_hashes_history_sequence(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
-    blob_count: int,
+    block_count: int,
     check_contract_first: bool,
 ):
     """
@@ -93,6 +93,10 @@ def test_block_hashes_history_sequence(
     new one.
     """
     blocks: List[Block] = []
+
+    for _ in range(block_count):
+        # Generate empty blocks after the fork.
+        blocks.append(Block())
 
     sender = pre.fund_eoa()
     post: Dict[Address, Account] = {}
@@ -104,7 +108,7 @@ def test_block_hashes_history_sequence(
     code = Bytecode()
     storage = Storage()
 
-    for i in range(blob_count):
+    for i in range(block_count):
         code += generate_block_check_code(
             sub_block_number=i + 1,
             storage=storage,
@@ -138,6 +142,7 @@ def test_block_hashes_history_sequence(
     ],
 )
 @pytest.mark.valid_from("Prague")
+@pytest.mark.fill(pytest.mark.skip(reason="execute-only test, fill requires high resource"))
 def test_block_hashes_history(
     blockchain_test: BlockchainTestFiller,
     pre: Alloc,
@@ -160,6 +165,10 @@ def test_block_hashes_history(
     # fork.
     code = Bytecode()
     storage = Storage()
+
+    for _ in range(Spec.HISTORY_SERVE_WINDOW):
+        # Generate empty blocks after the fork.
+        blocks.append(Block())
 
     # Check the first block outside of the window if any
     code += generate_block_check_code(
