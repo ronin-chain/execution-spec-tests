@@ -1,10 +1,5 @@
 # Unless filling for special features, all features should fill for previous forks (starting from Frontier) too
-stable:
-  evm-type: stable
-  fill-params: --until=Cancun
-  solc: 0.8.21
-  specs: tests/shanghai tests/cancun
-develop:
+all:
   evm-type: develop
   fill-params: --until=Prague
   solc: 0.8.21
