@@ -788,11 +788,6 @@ class Shanghai(London):
         return True
 
     @classmethod
-    def header_zero_difficulty_required(cls, block_number: int = 0, timestamp: int = 0) -> bool:
-        """Zero difficulty is required starting from Paris."""
-        return True
-
-    @classmethod
     def get_reward(cls, block_number: int = 0, timestamp: int = 0) -> int:
         """Paris updates the reward to 0."""
         return 0
