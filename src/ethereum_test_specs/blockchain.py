@@ -18,6 +18,7 @@ from ethereum_test_base_types import (
     HeaderNonce,
     HexNumber,
     Number,
+    ZeroPaddedHexNumber,
 )
 from ethereum_test_exceptions import BlockException, EngineAPIError, TransactionException
 from ethereum_test_execution import BaseExecute, ExecuteFormat, TransactionPost
@@ -408,7 +409,7 @@ class BlockchainTest(BaseTest):
             fork=fork,
         )
         if header.difficulty is None or header.difficulty == 0:
-            header.difficulty = 0x20000
+            header.difficulty = ZeroPaddedHexNumber(0x20000)
 
         if block.header_verify is not None:
             # Verify the header after transition tool processing.
