@@ -407,6 +407,8 @@ class BlockchainTest(BaseTest):
             extra_data=block.extra_data if block.extra_data is not None else b"",
             fork=fork,
         )
+        if header.difficulty is None or header.difficulty == 0:
+            header.difficulty = 0x20000
 
         if block.header_verify is not None:
             # Verify the header after transition tool processing.
