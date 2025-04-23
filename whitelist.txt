@@ -749,6 +749,7 @@ call
 callcode
 return
 delegatecall
+delegatecalling
 eofcreate
 extcall
 extcalls
