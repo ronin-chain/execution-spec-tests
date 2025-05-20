@@ -496,7 +496,6 @@ dependencies = [
     { name = "click" },
     { name = "coincurve" },
     { name = "colorlog" },
-    { name = "eth-abi" },
     { name = "ethereum" },
     { name = "ethereum-rlp" },
     { name = "ethereum-spec-evm-resolver" },
@@ -504,7 +503,6 @@ dependencies = [
     { name = "filelock" },
     { name = "gitpython" },
     { name = "hive-py" },
-    { name = "joblib" },
     { name = "prompt-toolkit" },
     { name = "pydantic" },
     { name = "pyjwt" },
@@ -513,7 +511,6 @@ dependencies = [
     { name = "pytest-html" },
     { name = "pytest-json-report" },
     { name = "pytest-metadata" },
-    { name = "pytest-regex" },
     { name = "pytest-xdist" },
     { name = "pyyaml" },
     { name = "questionary" },
@@ -562,7 +559,6 @@ requires-dist = [
     { name = "click", specifier = ">=8.1.0,<9" },
     { name = "coincurve", specifier = ">=20.0.0,<21" },
     { name = "colorlog", specifier = ">=6.7.0,<7" },
-    { name = "eth-abi", specifier = ">=5.2.0" },
     { name = "ethereum", git = "https://github.com/ethereum/execution-specs?rev=78fb726158c69d8fa164e28f195fabf6ab59b915" },
     { name = "ethereum-rlp", specifier = ">=0.1.3,<0.2" },
     { name = "ethereum-spec-evm-resolver", git = "https://github.com/petertdavies/ethereum-spec-evm-resolver" },
@@ -570,7 +566,6 @@ requires-dist = [
     { name = "filelock", specifier = ">=3.15.1,<4" },
     { name = "gitpython", specifier = ">=3.1.31,<4" },
     { name = "hive-py", git = "https://github.com/marioevz/hive.py" },
-    { name = "joblib", specifier = ">=1.4.2" },
     { name = "mike", marker = "extra == 'docs'", specifier = ">=1.1.2,<2" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.4.3,<2" },
     { name = "mkdocs-click", marker = "extra == 'docs'", specifier = ">=0.8,<1" },
@@ -594,10 +589,9 @@ requires-dist = [
     { name = "pytest-html", specifier = ">=4.1.0,<5" },
     { name = "pytest-json-report", specifier = ">=1.5.0,<2" },
     { name = "pytest-metadata", specifier = ">=3,<4" },
-    { name = "pytest-regex", specifier = ">=0.2.0,<0.3" },
     { name = "pytest-xdist", specifier = ">=3.3.1,<4" },
     { name = "pyyaml", specifier = ">=6.0.2,<7" },
-    { name = "questionary", git = "https://github.com/tmbo/questionary?rev=ff22aeae1cd9c1c734f14329934e349bec7873bc#ff22aeae1cd9c1c734f14329934e349bec7873bc" },
+    { name = "questionary", git = "https://github.com/tmbo/questionary?rev=ff22aeae1cd9c1c734f14329934e349bec7873bc" },
     { name = "requests", specifier = ">=2.31.0,<3" },
     { name = "requests-unixsocket2", specifier = ">=0.4.0" },
     { name = "rich", specifier = ">=13.7.0,<14" },
@@ -787,15 +781,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ed/55/39036716d19cab0747a5020fc7e907f362fbf48c984b14e62127f7e68e5d/jinja2-3.1.4.tar.gz", hash = "sha256:4a3aee7acbbe7303aede8e9648d13b8bf88a429282aa6122a993f0ac800cb369", size = 240245 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/31/80/3a54838c3fb461f6fec263ebf3a3a41771bd05190238de3486aae8540c36/jinja2-3.1.4-py3-none-any.whl", hash = "sha256:bc5dd2abb727a5319567b7a813e6a2e7318c39f4f487cfe6c89c6f9c7d25197d", size = 133271 },
-]
-
-[[package]]
-name = "joblib"
-version = "1.5.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/30/08/8bd4a0250247861420a040b33ccf42f43c426ac91d99405374ef117e5872/joblib-1.5.0.tar.gz", hash = "sha256:d8757f955389a3dd7a23152e43bc297c2e0c2d3060056dad0feefc88a06939b5", size = 330234 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/da/d3/13ee227a148af1c693654932b8b0b02ed64af5e1f7406d56b088b57574cd/joblib-1.5.0-py3-none-any.whl", hash = "sha256:206144b320246485b712fc8cc51f017de58225fa8b414a1fe1764a7231aca491", size = 307682 },
 ]
 
 [[package]]
@@ -1211,18 +1196,6 @@ wheels = [
 ]
 
 [[package]]
-name = "parsimonious"
-version = "0.10.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "regex" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/7b/91/abdc50c4ef06fdf8d047f60ee777ca9b2a7885e1a9cea81343fbecda52d7/parsimonious-0.10.0.tar.gz", hash = "sha256:8281600da180ec8ae35427a4ab4f7b82bfec1e3d1e52f80cb60ea82b9512501c", size = 52172 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/aa/0f/c8b64d9b54ea631fcad4e9e3c8dbe8c11bb32a623be94f22974c88e71eaf/parsimonious-0.10.0-py3-none-any.whl", hash = "sha256:982ab435fabe86519b57f6b35610aa4e4e977e9f02a14353edf4bbc75369fc0f", size = 48427 },
-]
-
-[[package]]
 name = "pathspec"
 version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1354,10 +1327,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/02/fa/f83072580377dcdf4d2ff3c7d25d225790302a86cfd1e9eb2c2832740135/pycryptodome-3.15.0-cp35-abi3-musllinux_1_1_aarch64.whl", hash = "sha256:50ca7e587b8e541eb6c192acf92449d95377d1f88908c0a32ac5ac2703ebe28b", size = 2032482 },
     { url = "https://files.pythonhosted.org/packages/55/60/28d873c1efe46cf62494a0393fe34e4757821123fb1af9c45be3b2eeba8a/pycryptodome-3.15.0-cp35-abi3-win32.whl", hash = "sha256:e244ab85c422260de91cda6379e8e986405b4f13dc97d2876497178707f87fc1", size = 1877649 },
     { url = "https://files.pythonhosted.org/packages/00/07/5a262e3213a9358e2f7caf9080aa8a984f44bf4aee84592dfb965dd34355/pycryptodome-3.15.0-cp35-abi3-win_amd64.whl", hash = "sha256:c77126899c4b9c9827ddf50565e93955cb3996813c18900c16b2ea0474e130e9", size = 1941787 },
-    { url = "https://files.pythonhosted.org/packages/bb/7a/0e51d1dc253d0571106009b94762b8ab5a7c905079c354247b721ae1f198/pycryptodome-3.15.0-pp27-pypy_73-macosx_10_9_x86_64.whl", hash = "sha256:9eaadc058106344a566dc51d3d3a758ab07f8edde013712bc8d22032a86b264f", size = 1536248 },
-    { url = "https://files.pythonhosted.org/packages/9b/e8/628f92b38ee4475d7b316d04c2913d397cdcc3f3a873bdbea10a438ba9fe/pycryptodome-3.15.0-pp27-pypy_73-manylinux1_x86_64.whl", hash = "sha256:ff287bcba9fbeb4f1cccc1f2e90a08d691480735a611ee83c80a7d74ad72b9d9", size = 1613313 },
-    { url = "https://files.pythonhosted.org/packages/b1/6c/4ee93e2e863e95caffc5a356b867e86f5596f4e38cddb43848412dd69176/pycryptodome-3.15.0-pp27-pypy_73-manylinux2010_x86_64.whl", hash = "sha256:60b4faae330c3624cc5a546ba9cfd7b8273995a15de94ee4538130d74953ec2e", size = 1613316 },
-    { url = "https://files.pythonhosted.org/packages/c8/03/1f745c158299000664a6fb5c0b28d5359837b05b4ba1f5a37645da5cad4d/pycryptodome-3.15.0-pp27-pypy_73-win32.whl", hash = "sha256:a8f06611e691c2ce45ca09bbf983e2ff2f8f4f87313609d80c125aff9fad6e7f", size = 1681598 },
 ]
 
 [[package]]
@@ -1568,18 +1537,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a6/85/8c969f8bec4e559f8f2b958a15229a35495f5b4ce499f6b865eac54b878d/pytest_metadata-3.1.1.tar.gz", hash = "sha256:d2a29b0355fbc03f168aa96d41ff88b1a3b44a3b02acbe491801c98a048017c8", size = 9952 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3e/43/7e7b2ec865caa92f67b8f0e9231a798d102724ca4c0e1f414316be1c1ef2/pytest_metadata-3.1.1-py3-none-any.whl", hash = "sha256:c8e0844db684ee1c798cfa38908d20d67d0463ecb6137c72e91f418558dd5f4b", size = 11428 },
-]
-
-[[package]]
-name = "pytest-regex"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pytest" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/73/67/e3f3700e8f95fc9e80ab83d589346c117de4e6d01e6b922f7300282e7fc9/pytest-regex-0.2.0.tar.gz", hash = "sha256:f4076c49abece2503815c8b2e282a8fd22d330f06f9bf91d620b3ef02de7a353", size = 4097 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/72/d4143c66c1806599358c119c0af530bab92ef0c48129f17522dfd5a7ff6a/pytest_regex-0.2.0-py3-none-any.whl", hash = "sha256:c97e9c49e8c7e7482bd1fa701e3a5cccd18eb78d263752e32dba4937d8cee6d9", size = 3824 },
 ]
 
 [[package]]
