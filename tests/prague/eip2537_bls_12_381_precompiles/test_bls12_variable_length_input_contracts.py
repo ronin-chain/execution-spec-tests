@@ -17,7 +17,6 @@ REFERENCE_SPEC_VERSION = ref_spec_2537.version
 
 pytestmark = [
     pytest.mark.valid_from("Prague"),
-    pytest.mark.skip("require high resource for this test"),
 ]
 
 G1_MSM_K_INPUT_LENGTH = len(PointG1() + Scalar())

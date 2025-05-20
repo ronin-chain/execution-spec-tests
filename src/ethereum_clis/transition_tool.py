@@ -36,7 +36,7 @@ from .types import (
 model_dump_config: Mapping = {"by_alias": True, "exclude_none": True}
 
 NORMAL_SERVER_TIMEOUT = 20
-SLOW_REQUEST_TIMEOUT = 60
+SLOW_REQUEST_TIMEOUT = 300
 
 
 class TransitionTool(EthereumCLI, FixtureVerifier):

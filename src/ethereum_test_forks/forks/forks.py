@@ -1,7 +1,6 @@
 """All Ethereum fork class definitions."""
 
 from dataclasses import replace
-from hashlib import sha256
 from os.path import realpath
 from pathlib import Path
 from typing import List, Mapping, Optional, Sized, Tuple
@@ -935,22 +934,6 @@ class Cancun(Shanghai):
         return [Address(0xA)] + super(Cancun, cls).precompiles(block_number, timestamp)
 
     @classmethod
-    def pre_allocation_blockchain(cls) -> Mapping:
-        """
-        Cancun requires pre-allocation of the beacon root contract for EIP-4788 on blockchain
-        type tests.
-        """
-        new_allocation = {
-            0x000F3DF6D732807EF1319FB7B8BB8522D0BEAC02: {
-                "nonce": 1,
-                "code": "0x3373fffffffffffffffffffffffffffffffffffffffe14604d57602036146024575f5f"
-                "fd5b5f35801560495762001fff810690815414603c575f5ffd5b62001fff01545f5260205ff35b5f"
-                "5ffd5b62001fff42064281555f359062001fff015500",
-            }
-        }
-        return new_allocation | super(Cancun, cls).pre_allocation_blockchain()  # type: ignore
-
-    @classmethod
     def engine_new_payload_version(
         cls, block_number: int = 0, timestamp: int = 0
     ) -> Optional[int]:
@@ -1131,41 +1114,8 @@ class Prague(Cancun):
 
     @classmethod
     def pre_allocation_blockchain(cls) -> Mapping:
-        """
-        Prague requires pre-allocation of the beacon chain deposit contract for EIP-6110,
-        the exits contract for EIP-7002, and the history storage contract for EIP-2935.
-        """
+        """Prague requires pre-allocation of the history storage contract for EIP-2935."""
         new_allocation = {}
-
-        # Add the beacon chain deposit contract
-        deposit_contract_tree_depth = 32
-        storage = {}
-        next_hash = sha256(b"\x00" * 64).digest()
-        for i in range(deposit_contract_tree_depth + 2, deposit_contract_tree_depth * 2 + 1):
-            storage[i] = next_hash
-            next_hash = sha256(next_hash + next_hash).digest()
-
-        with open(CURRENT_FOLDER / "contracts" / "deposit_contract.bin", mode="rb") as f:
-            new_allocation.update(
-                {
-                    0x00000000219AB540356CBB839CBE05303D7705FA: {
-                        "nonce": 1,
-                        "code": f.read(),
-                        "storage": storage,
-                    }
-                }
-            )
-
-        # EIP-7251: Add the consolidation request contract
-        with open(CURRENT_FOLDER / "contracts" / "consolidation_request.bin", mode="rb") as f:
-            new_allocation.update(
-                {
-                    0x0000BBDDC7CE488642FB579F8B00F3A590007251: {
-                        "nonce": 1,
-                        "code": f.read(),
-                    },
-                }
-            )
 
         # EIP-2935: Add the history storage contract
         with open(CURRENT_FOLDER / "contracts" / "history_contract.bin", mode="rb") as f:

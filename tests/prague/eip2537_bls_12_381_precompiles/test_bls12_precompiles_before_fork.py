@@ -15,7 +15,6 @@ REFERENCE_SPEC_VERSION = ref_spec_2537.version
 
 pytestmark = [
     pytest.mark.valid_at_transition_to("Prague"),
-    pytest.mark.skip("require high resource for this test"),
 ]
 
 
