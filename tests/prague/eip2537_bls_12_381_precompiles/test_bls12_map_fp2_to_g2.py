@@ -18,6 +18,7 @@ REFERENCE_SPEC_VERSION = ref_spec_2537.version
 pytestmark = [
     pytest.mark.valid_from("Prague"),
     pytest.mark.parametrize("precompile_address", [Spec.MAP_FP2_TO_G2], ids=[""]),
+    pytest.mark.slow,
 ]
 
 G2_POINT_ZERO_FP = PointG2(
