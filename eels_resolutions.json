@@ -36,7 +36,7 @@
     },
     "Prague": {
         "git_url": "https://github.com/sonhv0212/execution-specs.git",
-        "branch": "devnets/prague/6",
-        "commit": "51ba0176f320a79e161c27246f1d36b5919e6761"
+        "branch": "prague/mario",
+        "commit": "d97c29fd1b7ad48574e81d5f9a5593406c646f51"
     }
 }
