@@ -165,7 +165,7 @@ class StateTest(BaseTest):
                     FixtureForkPost(
                         state_root=transition_tool_output.result.state_root,
                         logs_hash=transition_tool_output.result.logs_hash,
-                        tx_bytes=tx.rlp,
+                        tx_bytes=tx.rlp(),
                         expect_exception=tx.error,
                         state=transition_tool_output.alloc,
                     )
@@ -206,7 +206,7 @@ class StateTest(BaseTest):
         """Generate the list of test fixtures."""
         if execute_format == TransactionPost:
             return TransactionPost(
-                transactions=[self.tx],
+                blocks=[[self.tx]],
                 post=self.post,
             )
         raise Exception(f"Unsupported execute format: {execute_format}")

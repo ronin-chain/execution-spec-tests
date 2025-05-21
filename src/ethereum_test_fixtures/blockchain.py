@@ -206,7 +206,7 @@ class FixtureExecutionPayload(CamelModel):
         """
         return cls(
             **header.model_dump(exclude={"rlp"}, exclude_none=True),
-            transactions=[tx.rlp for tx in transactions],
+            transactions=[tx.rlp() for tx in transactions],
         )
 
 

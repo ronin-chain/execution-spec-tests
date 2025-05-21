@@ -21,7 +21,6 @@ from ethereum_test_tools import (
 from ethereum_test_tools import Opcodes as Op
 
 from .helpers import DataTestType, find_floor_cost_threshold
-from .spec import Spec
 
 
 @pytest.fixture
@@ -43,8 +42,8 @@ def to(
 
     if param is None:
         return None
-    if isinstance(param, Address):
-        return param
+    if isinstance(param, str) and param == "eoa":
+        return pre.fund_eoa(amount=0)
     if isinstance(param, Bytecode):
         return pre.deploy_contract(param)
 
@@ -333,12 +332,4 @@ def tx(
         blob_versioned_hashes=blob_versioned_hashes,
         error=tx_error,
     )
-
-    if tx.ty == 3:
-        tx.blobs = [Bytes(bytes(4096 * 32))]
-        tx.blob_kzg_commitments = [Bytes(Spec.INF_POINT)]
-        tx.blob_kzg_proofs = [Bytes(Spec.INF_POINT)]
-        tx.blob_versioned_hashes = [Hash(Spec.kzg_to_versioned_hash(Spec.INF_POINT))]
-        tx.wrapped_blob_transaction = True
-
     return tx
