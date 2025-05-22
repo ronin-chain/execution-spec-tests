@@ -240,7 +240,7 @@ def test_block_hashes_call_opcodes(
     )
 
     code = (
-        Op.MSTORE(0, 1)
+        Op.MSTORE(0, Op.SUB(Op.NUMBER(), 1))
         + Op.SSTORE(
             return_code_slot,
             call_opcode(
