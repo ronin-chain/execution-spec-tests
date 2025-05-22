@@ -395,3 +395,9 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             )
         elif "test_many_delegations" in item.name:
             item.add_marker(pytest.mark.skip(reason="This test needs high gas"))
+
+        # Skip tests that execute mode not supported
+        if "type_3" in item.name:
+            item.add_marker(
+                pytest.mark.skip(reason="Transaction type 3 is not supported in execute mode")
+            )
