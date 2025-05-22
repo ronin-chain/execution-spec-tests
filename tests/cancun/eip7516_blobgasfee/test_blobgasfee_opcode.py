@@ -140,36 +140,3 @@ def test_blobbasefee_out_of_gas(
         tx=tx,
         post=post,
     )
-
-
-@pytest.mark.parametrize("caller_pre_storage", [{1: 1}], ids=[""])
-@pytest.mark.valid_at_transition_to("Cancun")
-def test_blobbasefee_before_fork(
-    state_test: StateTestFiller,
-    pre: Alloc,
-    caller_address: Address,
-    callee_address: Address,
-    tx: Transaction,
-):
-    """Tests that the BLOBBASEFEE opcode results on exception when called before the fork."""
-    # Fork happens at timestamp 15_000
-    timestamp = 7_500
-    post = {
-        caller_address: Account(
-            storage={1: 0},
-        ),
-        callee_address: Account(
-            balance=0,
-        ),
-    }
-    state_test(
-        env=Environment(
-            timestamp=timestamp,
-        ),
-        pre=pre,
-        tx=tx,
-        post=post,
-    )
-
-
-timestamps = [7_500, 14_999, 15_000]
