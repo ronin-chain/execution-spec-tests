@@ -799,6 +799,7 @@ def test_pointer_call_followed_by_direct_call(
 
 
 @pytest.mark.valid_from("Prague")
+@pytest.mark.execute(pytest.mark.skip(reason="tx fee cap too big"))
 def test_pointer_to_static(state_test: StateTestFiller, pre: Alloc):
     """
     Tx -> call -> pointer A -> static -> static violation
@@ -845,6 +846,7 @@ def test_pointer_to_static(state_test: StateTestFiller, pre: Alloc):
 
 
 @pytest.mark.valid_from("Prague")
+@pytest.mark.execute(pytest.mark.skip(reason="tx fee cap too big"))
 def test_static_to_pointer(state_test: StateTestFiller, pre: Alloc):
     """
     Tx -> staticcall -> pointer A -> static violation

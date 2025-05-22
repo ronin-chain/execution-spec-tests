@@ -55,6 +55,7 @@ pytestmark = [
             Spec.PAIRING_TRUE,
             None,
             id="multi_inf_pair",
+            marks=pytest.mark.execute(pytest.mark.skip(reason="tx size too big")),
         ),
         pytest.param(  # e(P, Q) . e(P, −Q) == 1 (inverse pair, factors cancel)
             Spec.G1 + Spec.G2 + Spec.G1 + (-Spec.G2),
@@ -184,6 +185,7 @@ def test_valid(
         pytest.param(
             (Spec.INF_G1 + Spec.INF_G2) * 1000 + PointG1(Spec.P, 0) + Spec.INF_G2,
             id="long_input_with_invalid_tail",
+            marks=pytest.mark.execute(pytest.mark.skip(reason="tx size too big")),
         ),
         # Points not in the subgroup or not on the curve randomly generated.
         pytest.param(
