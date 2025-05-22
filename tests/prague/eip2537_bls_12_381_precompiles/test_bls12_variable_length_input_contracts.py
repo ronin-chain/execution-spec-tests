@@ -121,6 +121,7 @@ def call_contract_code(
 @pytest.mark.parametrize("expected_output", [PointG1()], ids=[""])
 @pytest.mark.parametrize("tx_gas_limit", [100_000_000], ids=[""])
 @pytest.mark.parametrize("precompile_address", [Spec.G1MSM])
+@pytest.mark.execute(pytest.mark.skip(reason="tx fee cap too big"))
 def test_valid_gas_g1msm(
     state_test: StateTestFiller,
     pre: Alloc,
@@ -246,6 +247,7 @@ def test_invalid_length_g1msm(
 @pytest.mark.parametrize("expected_output", [PointG2()], ids=[""])
 @pytest.mark.parametrize("tx_gas_limit", [200_000_000], ids=[""])
 @pytest.mark.parametrize("precompile_address", [Spec.G2MSM])
+@pytest.mark.execute(pytest.mark.skip(reason="tx fee cap too big"))
 def test_valid_gas_g2msm(
     state_test: StateTestFiller,
     pre: Alloc,

@@ -704,6 +704,7 @@ def test_set_code_max_depth_call_stack(
     "value",
     [0, 1],
 )
+@pytest.mark.execute(pytest.mark.skip(reason="tx fee cap too big"))
 def test_set_code_call_set_code(
     state_test: StateTestFiller,
     pre: Alloc,
