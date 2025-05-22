@@ -2890,46 +2890,55 @@ def test_reset_code(
 
     sender = pre.fund_eoa(10**19)
 
-    txs = [
-        Transaction(
-            sender=sender,
-            gas_limit=1_000_000,
-            to=auth_signer,
-            value=0,
-            authorization_list=[
-                AuthorizationTuple(
-                    address=set_code_1_address,
-                    nonce=0,
-                    signer=auth_signer,
-                ),
-            ],
+    blocks = []
+    blocks.append(
+        Block(
+            txs=[
+                Transaction(
+                    sender=sender,
+                    gas_limit=1_000_000,
+                    to=auth_signer,
+                    value=0,
+                    authorization_list=[
+                        AuthorizationTuple(
+                            address=set_code_1_address,
+                            nonce=0,
+                            signer=auth_signer,
+                        ),
+                    ],
+                )
+            ]
         )
-    ]
+    )
 
     auth_signer.nonce += 1  # type: ignore
 
     if self_sponsored:
         sender = auth_signer
 
-    txs.append(
-        Transaction(
-            sender=sender,
-            gas_limit=1_000_000,
-            to=auth_signer,
-            value=0,
-            authorization_list=[
-                AuthorizationTuple(
-                    address=set_code_2_address,
-                    nonce=auth_signer.nonce + 1 if self_sponsored else auth_signer.nonce,
-                    signer=auth_signer,
+    blocks.append(
+        Block(
+            txs=[
+                Transaction(
+                    sender=sender,
+                    gas_limit=1_000_000,
+                    to=auth_signer,
+                    value=0,
+                    authorization_list=[
+                        AuthorizationTuple(
+                            address=set_code_2_address,
+                            nonce=auth_signer.nonce + 1 if self_sponsored else auth_signer.nonce,
+                            signer=auth_signer,
+                        ),
+                    ],
                 ),
-            ],
-        ),
+            ]
+        )
     )
 
     blockchain_test(
         pre=pre,
-        blocks=[Block(txs=txs)],
+        blocks=blocks,
         post={
             auth_signer: Account(
                 nonce=3 if self_sponsored else 2,
