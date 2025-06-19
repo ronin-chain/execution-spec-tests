@@ -2821,8 +2821,8 @@ def test_eoa_tx_after_set_code(
                     gas_limit=1_000_000,
                     to=auth_signer,
                     value=0,
-                    max_fee_per_gas=1_500_000_000,
-                    max_priority_fee_per_gas=1_000_000_000,
+                    max_fee_per_gas=21_000_000_000,
+                    max_priority_fee_per_gas=20_000_000_000,
                 ),
             )
         case 3:
